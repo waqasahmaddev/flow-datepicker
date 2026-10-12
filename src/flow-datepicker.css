@@ -1,0 +1,46 @@
+/*
+ * flow-datepicker
+ * Colours and sizes are custom properties. Light and dark come from the
+ * element's color-scheme, so the page decides: Bootstrap's data-bs-theme,
+ * a .dark root class, data-fdp-theme="dark|light|auto", or CSS color-scheme.
+ */
+
+:where(:root) {
+  --fdp-font-size: 1rem;
+  --fdp-popover-bg: light-dark(#ffffff, #303030);
+  --fdp-line: light-dark(#e3e3e3, #3c3c3c);
+  --fdp-selected-bg: light-dark(#ececec, #464646);
+  --fdp-band-bg: light-dark(#efefef, #3f3f3f);
+  --fdp-hover-bg: light-dark(#f4f4f4, #3a3a3a);
+  --fdp-text: light-dark(#1b1b1b, #f0f0f0);
+  --fdp-muted: light-dark(#7a7a7a, #a8a8a8);
+  --fdp-disabled: light-dark(#b3b3b3, #858585);
+  --fdp-cap-bg: light-dark(#1b1b1b, #ffffff);
+  --fdp-cap-text: light-dark(#ffffff, #141414);
+
+  --fdp-radius: 1.125em;
+  --fdp-control-radius: 0.625em;
+  --fdp-row-radius: 0.625em;
+  --fdp-band-radius: 0.5em;
+  --fdp-day-size: 2.3125em;
+  --fdp-day-column: 2.34375em;
+  --fdp-day-pitch: 2.5em;
+  --fdp-month-gap: 3.5625em;
+  --fdp-month-padding: 1.5625em;
+  --fdp-presets-width: 11.625em;
+  --fdp-preset-height: 2.5em;
+  --fdp-time-height: 3em;
+  --fdp-meridiem-width: 4.5em;
+}
+
+:where([data-fdp-theme="dark"], [data-bs-theme="dark"], [data-theme="dark"], :root.dark) {
+  color-scheme: dark;
+}
+
+:where([data-fdp-theme="light"], [data-bs-theme="light"], [data-theme="light"]) {
+  color-scheme: light;
+}
+
+:where([data-fdp-theme="auto"]) {
+  color-scheme: light dark;
+}

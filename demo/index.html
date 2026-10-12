@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-fdp-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>flow-datepicker - demo</title>
+  <script>
+    try {
+      const saved = new URLSearchParams(location.search).get('theme') || localStorage.getItem('fdp-demo-theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-fdp-theme', saved);
+      }
+    } catch (e) {
+    }
+  </script>
+  <link rel="stylesheet" href="../dist/flow-datepicker.css">
+  <script src="../dist/flow-datepicker.js"></script>
+  <link rel="stylesheet" href="demo.css">
+  <script src="../node_modules/htmx.org/dist/htmx.min.js" defer></script>
+  <script type="module" src="demo.js"></script>
+</head>
+<body>
+
+<main class="page">
+
+  <header class="page-head">
+    <div>
+      <h1>flow-datepicker</h1>
+      <p>Date, time and date range picker for plain HTML forms. Every example below is a real <code>&lt;input&gt;</code>.</p>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle">Light mode</button>
+  </header>
+
+  <form class="section" id="demoForm" hx-post="/api/echo" hx-target="#echo">
+
+    <section class="block" id="range">
+      <h2>Date range</h2>
+      <p>Pill trigger, presets and two months. A wrapper with two date inputs.</p>
+      <div data-flow-datepicker="range" data-fdp-max="today">
+        <input type="date" name="from" value="2026-10-05" aria-label="From">
+        <input type="date" name="to" value="2026-10-12" aria-label="To">
+      </div>
+    </section>
+
+    <section class="block" id="date">
+      <h2>Date</h2>
+      <p>Field trigger and one month.</p>
+      <label class="field-label" for="publishDate">Publish date</label>
+      <input id="publishDate" type="date" name="publishDate" value="2026-10-12" data-flow-datepicker>
+    </section>
+
+    <section class="block" id="time">
+      <h2>Time</h2>
+      <p>One time row. Handles step minutes by 5 (<code>step="300"</code>).</p>
+      <label class="field-label" for="startTime">Start time</label>
+      <input id="startTime" type="time" name="startTime" value="12:00" step="300" data-flow-datepicker>
+    </section>
+
+    <section class="block" id="datetime">
+      <h2>Date and time</h2>
+      <p>One month with the time row below it.</p>
+      <label class="field-label" for="meetingAt">Meeting</label>
+      <input id="meetingAt" type="datetime-local" name="meetingAt" value="2026-10-12T12:00" step="300" data-flow-datepicker>
+    </section>
+
+    <section class="block" id="forms">
+      <h2>Form post</h2>
+      <p>The server echoes exactly what the native inputs post.</p>
+      <div class="actions">
+        <button type="submit" class="button">Submit</button>
+        <button type="reset" class="button">Reset</button>
+      </div>
+      <div id="echo"></div>
+    </section>
+
+  </form>
+
+  <section class="section block" id="htmx">
+    <h2>htmx swap</h2>
+    <p>Content swapped in by htmx starts by itself.</p>
+    <button type="button" class="button" hx-get="/api/fragment" hx-target="#swapTarget">Load fragment</button>
+    <div id="swapTarget"></div>
+  </section>
+
+</main>
+
+</body>
+</html>

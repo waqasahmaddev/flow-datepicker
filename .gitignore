@@ -1,0 +1,23 @@
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+*.log
+
+# AI assistant and private working files (never published)
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.claude/
+.ai/
+.cursor/
+.cursorrules
+.windsurf/
+.github/copilot-instructions.md
+.aider*
+.continue/
+.idea/
+notes/
+test-results/
+playwright-report/

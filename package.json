@@ -1,0 +1,65 @@
+{
+  "name": "flow-datepicker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A light, keyboard-first date, time and date range picker for plain HTML forms. No dependencies.",
+  "license": "MIT",
+  "author": "Waqas Ahmad",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waqasahmaddev/flow-datepicker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/waqasahmaddev/flow-datepicker/issues"
+  },
+  "keywords": [
+    "datepicker",
+    "date-range",
+    "timepicker",
+    "datetime",
+    "calendar",
+    "accessibility",
+    "vanilla-js"
+  ],
+  "type": "module",
+  "main": "dist/flow-datepicker.esm.js",
+  "module": "dist/flow-datepicker.esm.js",
+  "browser": "dist/flow-datepicker.min.js",
+  "style": "dist/flow-datepicker.css",
+  "exports": {
+    ".": {
+      "import": "./dist/flow-datepicker.esm.js",
+      "default": "./dist/flow-datepicker.min.js"
+    },
+    "./css": "./dist/flow-datepicker.css",
+    "./style.css": "./dist/flow-datepicker.css"
+  },
+  "sideEffects": [
+    "*.css",
+    "./dist/flow-datepicker.js",
+    "./dist/flow-datepicker.min.js",
+    "./src/auto.js"
+  ],
+  "files": [
+    "dist/*.js",
+    "dist/*.css",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "serve": "node scripts/serve.mjs",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "esbuild": "^0.28.2",
+    "htmx.org": "^2.0.11"
+  }
+}
