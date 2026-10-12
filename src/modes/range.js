@@ -1,0 +1,166 @@
+import { el } from '../core/dom.js';
+import { isSameDay, orderDays, today } from '../core/date-math.js';
+import { formatIsoDate, parseIsoDate } from '../core/iso.js';
+import { CalendarView } from '../views/calendar-view.js';
+import { PresetsView } from '../views/presets-view.js';
+import { matchPreset, presetFits, resolvePresets } from './presets.js';
+import { applyDateBounds, readDateBounds, toDate } from './shared.js';
+
+const NARROW = '(max-width: 40em)';
+
+function sameRange(a, b) {
+  if (!a || !b) {
+    return !a && !b;
+  }
+  return sameDay(a.from, b.from) && sameDay(a.to, b.to);
+}
+
+function sameDay(a, b) {
+  return (!a && !b) || isSameDay(a, b);
+}
+
+function normalise(from, to) {
+  if (!from && !to) {
+    return null;
+  }
+  if (from && to) {
+    const [start, end] = orderDays(from, to);
+    return { from: start, to: end };
+  }
+  return { from: from ?? to, to: to ?? from };
+}
+
+function monthCount(options) {
+  if (Number.isInteger(options.months) && options.months > 0) {
+    return options.months;
+  }
+  return globalThis.matchMedia?.(NARROW).matches ? 1 : 2;
+}
+
+export const rangeMode = {
+  name: 'range',
+  trigger: 'pill',
+  icon: 'calendar',
+  dialogLabel: 'chooseRange',
+
+  matches(element) {
+    return element.dataset.flowDatepicker === 'range';
+  },
+
+  inputs(element) {
+    return [...element.querySelectorAll('input')].slice(0, 2);
+  },
+
+  prepare(inputs, options) {
+    for (const input of inputs) {
+      applyDateBounds(input, options);
+    }
+  },
+
+  readBounds([from]) {
+    return readDateBounds(from);
+  },
+
+  read([from, to]) {
+    return normalise(parseIsoDate(from?.value), parseIsoDate(to?.value));
+  },
+
+  write(value, [from, to]) {
+    from.value = formatIsoDate(value?.from);
+    to.value = formatIsoDate(value?.to);
+  },
+
+  equals(a, b) {
+    return sameRange(a, b);
+  },
+
+  serialize(value, picker) {
+    const preset = matchPreset(value, resolvePresets(picker.options.presets, picker.labels), today(), picker.locale);
+    return { from: formatIsoDate(value?.from), to: formatIsoDate(value?.to), preset: preset?.id ?? null };
+  },
+
+  deserialize(value, picker) {
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'string') {
+      const preset = resolvePresets(picker.options.presets, picker.labels).find((item) => item.id === value);
+      if (!preset) {
+        return null;
+      }
+      const [from, to] = preset.range(today(), picker.locale);
+      return normalise(from, to);
+    }
+    return normalise(toDate(value.from), toDate(value.to));
+  },
+
+  format(value, picker) {
+    if (!value) {
+      return '';
+    }
+    const preset = matchPreset(value, resolvePresets(picker.options.presets, picker.labels), today(), picker.locale);
+    return preset ? preset.label : picker.locale.formatRange(value.from, value.to);
+  },
+
+  parse() {
+    return null;
+  },
+
+  placeholder(picker) {
+    return picker.labels.selectRange;
+  },
+
+  build(picker) {
+    const presets = resolvePresets(picker.options.presets, picker.labels);
+    let anchor = null;
+    const calendar = new CalendarView({
+      id: picker.id,
+      locale: picker.locale,
+      labels: picker.labels,
+      months: monthCount(picker.options),
+      onPick(date) {
+        if (anchor) {
+          const [from, to] = orderDays(anchor, date);
+          anchor = null;
+          picker.commit({ from, to }, { close: true });
+        } else {
+          anchor = date;
+          calendar.setSelection(date);
+        }
+      },
+      onHover(date) {
+        if (anchor) {
+          calendar.setSelection(anchor, date);
+        }
+      }
+    });
+    const list = presets.length > 0
+      ? new PresetsView({
+        presets,
+        label: picker.labels.presets,
+        onPick(preset) {
+          const [from, to] = preset.range(today(), picker.locale);
+          picker.commit(normalise(from, to), { close: true });
+        }
+      })
+      : null;
+    const element = el('div', 'fdp-range');
+    if (list) {
+      element.append(list.element);
+    }
+    element.append(calendar.element);
+    return {
+      element,
+      update(value, bounds) {
+        anchor = null;
+        calendar.setBounds(bounds.min, bounds.max);
+        calendar.setSelection(value?.from ?? null, value?.to ?? null);
+        calendar.showDate(value?.to ?? today(), { align: 'end' });
+        list?.update(matchPreset(value, presets, today(), picker.locale)?.id ?? null, (preset) => presetFits(preset, today(), picker.locale, bounds));
+      },
+      focus() {
+        calendar.focus();
+      }
+    };
+  }
+};

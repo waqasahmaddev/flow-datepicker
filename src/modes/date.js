@@ -46,16 +46,16 @@ export const dateMode = {
     return toDate(value);
   },
 
-  format(value, locale) {
-    return value ? locale.formatDate(value) : '';
+  format(value, picker) {
+    return value ? picker.locale.formatDate(value) : '';
   },
 
-  parse(text, locale) {
-    return locale.parseDate(text);
+  parse(text, picker) {
+    return picker.locale.parseDate(text);
   },
 
-  placeholder(locale) {
-    return locale.dateHint();
+  placeholder(picker) {
+    return picker.locale.dateHint();
   },
 
   build(picker) {

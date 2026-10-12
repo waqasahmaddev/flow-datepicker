@@ -29,3 +29,17 @@ test('touch targets are at least 42px', async ({ page }) => {
   const size = await page.locator('.fdp:has(#publishDate) .fdp-cell[data-date="2026-10-20"] .fdp-day').boundingBox();
   expect(size.width).toBeGreaterThanOrEqual(42);
 });
+
+test('range on a phone: one month and presets in a row', async ({ page }) => {
+  await page.locator('.fdp--range .fdp-pill').tap();
+  const dialog = page.locator('.fdp--range .fdp-popover');
+  await expect(dialog.locator('.fdp-month')).toHaveCount(1);
+  await expect(dialog.locator('.fdp-month-title')).toHaveText('October 2026');
+  expect(await dialog.locator('.fdp-presets').evaluate((node) => getComputedStyle(node).flexDirection)).toBe('row');
+  const box = await dialog.boundingBox();
+  expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize().width);
+  await dialog.locator('.fdp-cell[data-date="2026-10-01"]').tap();
+  await dialog.locator('.fdp-cell[data-date="2026-10-09"]').tap();
+  await expect(page.locator('input[name="from"]')).toHaveValue('2026-10-01');
+  await expect(page.locator('input[name="to"]')).toHaveValue('2026-10-09');
+});

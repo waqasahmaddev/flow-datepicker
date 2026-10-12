@@ -9,6 +9,7 @@ export const defaults = {
   max: null,
   months: null,
   placeholder: null,
+  presets: null,
   labels: {
     chooseDate: 'Choose date',
     chooseTime: 'Choose time',
@@ -16,6 +17,12 @@ export const defaults = {
     chooseRange: 'Choose date range',
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
+    selectRange: 'Select dates',
+    presets: 'Presets',
+    weekToDate: 'Week to date',
+    monthToDate: 'Month to date',
+    yearToDate: 'Year to date',
+    lastDays: 'Last {n} days',
     today: 'Today',
     now: 'Now',
     clear: 'Clear'
@@ -23,7 +30,7 @@ export const defaults = {
 };
 
 const INTEGER_OPTIONS = new Set(['weekStart', 'hourCycle', 'months']);
-const DATASET_OPTIONS = ['mode', 'trigger', 'locale', 'weekStart', 'hourCycle', 'weekdayLength', 'min', 'max', 'months', 'placeholder'];
+const DATASET_OPTIONS = ['mode', 'trigger', 'locale', 'weekStart', 'hourCycle', 'weekdayLength', 'min', 'max', 'months', 'placeholder', 'presets'];
 
 function datasetKey(option) {
   return `fdp${option[0].toUpperCase()}${option.slice(1)}`;

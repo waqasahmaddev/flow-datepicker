@@ -62,8 +62,9 @@ export class CalendarView {
       [this.#start, this.#end] = orderDays(start, end);
     } else {
       this.#start = start ?? null;
-      this.#end = start ? start : null;
+      this.#end = start ?? null;
     }
+    this.#paint();
   }
 
   isSelectable(date) {
@@ -72,10 +73,8 @@ export class CalendarView {
 
   showDate(date, { align = 'start' } = {}) {
     this.#active = clampDate(date ?? today(), this.#min, this.#max);
-    if (!this.#isVisible(this.#active)) {
-      const month = startOfMonth(this.#active);
-      this.#first = align === 'end' ? addMonths(month, 1 - this.#months) : month;
-    }
+    const month = startOfMonth(this.#active);
+    this.#first = align === 'end' ? addMonths(month, 1 - this.#months) : month;
     this.render();
   }
 
@@ -100,6 +99,7 @@ export class CalendarView {
       months.push(this.#renderMonth(addMonths(this.#first, index), index, current));
     }
     this.element.replaceChildren(...months);
+    this.#paint();
     if (hadFocus) {
       this.focus();
     }
@@ -178,7 +178,7 @@ export class CalendarView {
         body.append(row);
         row = el('tr');
       }
-      row.append(this.#renderDay(createDate(year, month, day), row.children.length, day === 1, day === count, current));
+      row.append(this.#renderDay(createDate(year, month, day), current));
     }
     while (row.children.length < 7) {
       row.append(el('td', 'fdp-cell is-empty'));
@@ -187,7 +187,10 @@ export class CalendarView {
     return body;
   }
 
-  #rangeClasses(date, rowStart, rowEnd) {
+  #rangeClasses(date) {
+    const column = (date.getDay() - this.#locale.weekStart + 7) % 7;
+    const rowStart = column === 0 || date.getDate() === 1;
+    const rowEnd = column === 6 || date.getDate() === daysInMonth(date.getFullYear(), date.getMonth());
     if (!this.#start || !this.#end || compareDays(date, this.#start) < 0 || compareDays(date, this.#end) > 0) {
       return [];
     }
@@ -213,15 +216,19 @@ export class CalendarView {
     return classes;
   }
 
-  #renderDay(date, column, firstDay, lastDay, current) {
-    const rowStart = column === 0 || firstDay;
-    const rowEnd = column === 6 || lastDay;
-    const classes = this.#rangeClasses(date, rowStart, rowEnd);
+  #paint() {
+    for (const cell of this.element.querySelectorAll('.fdp-cell[data-date]')) {
+      const classes = this.#rangeClasses(parseIsoDate(cell.dataset.date));
+      cell.className = ['fdp-cell', ...classes].join(' ');
+      cell.setAttribute('aria-selected', classes.length > 0 ? 'true' : 'false');
+    }
+  }
+
+  #renderDay(date, current) {
     const selectable = this.isSelectable(date);
-    const cell = el('td', ['fdp-cell', ...classes].join(' '), {
+    const cell = el('td', 'fdp-cell', {
       'data-date': formatIsoDate(date),
       tabindex: isSameDay(date, this.#active) ? '0' : '-1',
-      'aria-selected': classes.length > 0 ? 'true' : 'false',
       'aria-disabled': selectable ? null : 'true',
       'aria-current': isSameDay(date, current) ? 'date' : null,
       'aria-label': this.#locale.formatFullDate(date)

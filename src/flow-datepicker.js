@@ -3,6 +3,7 @@ import { el, copyLayout, ensureId, listenWeak, nextId } from './core/dom.js';
 import { getLocale, resolveLocaleTag } from './core/locale.js';
 import { hidePopover, positionPopover, preparePopover, showPopover } from './core/popover.js';
 import { FieldTrigger } from './triggers/field-trigger.js';
+import { PillTrigger } from './triggers/pill-trigger.js';
 
 const SELECTOR = 'input[data-flow-datepicker]:not([data-flow-datepicker="manual"]), [data-flow-datepicker="range"]';
 const WATCHED_ATTRIBUTES = ['disabled', 'readonly', 'required', 'min', 'max', 'step'];
@@ -10,7 +11,7 @@ const WATCHED_ATTRIBUTES = ['disabled', 'readonly', 'required', 'min', 'max', 's
 const instances = new WeakMap();
 const modes = new Map();
 const views = new Map();
-const triggers = new Map([['field', FieldTrigger]]);
+const triggers = new Map([['field', FieldTrigger], ['pill', PillTrigger]]);
 const plugins = new Set();
 
 let openInstance = null;
@@ -143,7 +144,8 @@ export class FlowDatepicker {
   #isOpen = false;
   #destroyed = false;
   #frame = 0;
-  #saved = {};
+  #saved = new Map();
+  #ctx;
   #listeners = new AbortController();
   #openListeners = null;
   #observer = null;
@@ -165,6 +167,7 @@ export class FlowDatepicker {
       throw new TypeError('No flow-datepicker mode matches this element.');
     }
     this.#inputs = this.mode.inputs(element);
+    this.#ctx = this.#context();
     this.#configure();
     this.#value = this.mode.read(this.#inputs);
     this.#build();
@@ -195,11 +198,11 @@ export class FlowDatepicker {
   }
 
   getValue() {
-    return this.mode.serialize(this.#value);
+    return this.mode.serialize(this.#value, this.#ctx);
   }
 
   setValue(value, { silent = false } = {}) {
-    this.#commit(this.mode.deserialize(value), { silent });
+    this.#commit(this.mode.deserialize(value, this.#ctx), { silent });
   }
 
   clear({ silent = false } = {}) {
@@ -229,7 +232,8 @@ export class FlowDatepicker {
     if (!this.#isOpen) {
       return;
     }
-    const focusInside = this.#popover.contains(document.activeElement);
+    const active = document.activeElement;
+    const focusInside = this.#popover.contains(active) || !active || active === document.body;
     this.#isOpen = false;
     if (openInstance === this) {
       openInstance = null;
@@ -296,11 +300,13 @@ export class FlowDatepicker {
       if (!element.getAttribute('class')) {
         element.removeAttribute('class');
       }
-      for (const [name, value] of Object.entries(this.#saved)) {
-        if (value === null) {
-          element.removeAttribute(name);
-        } else {
-          element.setAttribute(name, value);
+      for (const [node, attributes] of this.#saved) {
+        for (const [name, value] of Object.entries(attributes)) {
+          if (value === null) {
+            node.removeAttribute(name);
+          } else {
+            node.setAttribute(name, value);
+          }
         }
       }
     }
@@ -319,7 +325,7 @@ export class FlowDatepicker {
   }
 
   #placeholder() {
-    return this.options.placeholder ?? this.mode.placeholder?.(this.locale) ?? '';
+    return this.options.placeholder ?? this.mode.placeholder?.(this.#ctx) ?? '';
   }
 
   #isReadOnly() {
@@ -349,17 +355,20 @@ export class FlowDatepicker {
     const triggerName = this.options.trigger ?? this.mode.trigger;
     const Trigger = triggers.get(triggerName) ?? FieldTrigger;
     this.#id = nextId('fdp');
-    this.#saved = { tabindex: element.getAttribute('tabindex'), 'aria-hidden': element.getAttribute('aria-hidden') };
-    this.#root = el('span', `fdp fdp--${triggerName}`);
+    this.#saved = new Map();
+    for (const node of new Set([element, ...this.#inputs])) {
+      this.#saved.set(node, { tabindex: node.getAttribute('tabindex'), 'aria-hidden': node.getAttribute('aria-hidden') });
+      node.tabIndex = -1;
+    }
+    this.#root = el('span', `fdp fdp--${triggerName} fdp--${this.mode.name}`);
     copyLayout(element, this.#root);
     element.before(this.#root);
     element.classList.add('fdp-native');
-    element.tabIndex = -1;
     element.setAttribute('aria-hidden', 'true');
     this.#trigger = new Trigger({
       id: this.#id,
       iconName: this.mode.icon,
-      label: this.labels[this.mode.dialogLabel],
+      label: element.getAttribute('aria-label') || this.labels[this.mode.dialogLabel],
       placeholder: this.#placeholder(),
       labelledBy: this.#labelIds(),
       ariaLabel: this.#inputs[0]?.getAttribute('aria-label'),
@@ -371,10 +380,18 @@ export class FlowDatepicker {
   #context() {
     const picker = this;
     return {
-      id: this.#id,
-      locale: this.locale,
-      labels: this.labels,
-      options: this.options,
+      get id() {
+        return picker.#id;
+      },
+      get locale() {
+        return picker.locale;
+      },
+      get labels() {
+        return picker.labels;
+      },
+      get options() {
+        return picker.options;
+      },
       get bounds() {
         return picker.#bounds();
       },
@@ -400,7 +417,7 @@ export class FlowDatepicker {
       'aria-label': this.labels[this.mode.dialogLabel]
     });
     preparePopover(popover);
-    this.#content = this.mode.build(this.#context());
+    this.#content = this.mode.build(this.#ctx);
     popover.append(...[].concat(this.#content.element));
     this.#root.append(popover);
     this.#popover = popover;
@@ -546,14 +563,14 @@ export class FlowDatepicker {
     if (!this.#isOpen) {
       return;
     }
-    const parsed = this.mode.parse(text, this.locale);
+    const parsed = this.mode.parse(text, this.#ctx);
     if (parsed) {
       this.#content.preview?.(parsed);
     }
   }
 
   #formatted() {
-    return this.mode.format(this.#value, this.locale);
+    return this.mode.format(this.#value, this.#ctx);
   }
 
   #commitTyped() {
@@ -565,7 +582,7 @@ export class FlowDatepicker {
       this.#commit(null);
       return;
     }
-    const parsed = this.mode.parse(text, this.locale);
+    const parsed = this.mode.parse(text, this.#ctx);
     if (parsed) {
       this.#commit(parsed);
     } else {
