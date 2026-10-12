@@ -11,8 +11,11 @@ test('demo page loads the library without errors', async ({ page }) => {
 
 test('form posts the native input values', async ({ page }) => {
   await page.goto('/demo/');
+  await page.evaluate(() => FlowDatepicker.get('#deliveryDate').setValue('2026-10-15'));
   await page.getByRole('button', { name: 'Submit' }).click();
   const echo = page.getByTestId('echo');
+  await expect(echo).toContainText('deliveryDate: 2026-10-15');
+  await expect(echo).toContainText('startDate: 2026-03-02');
   await expect(echo).toContainText('from: 2026-10-05');
   await expect(echo).toContainText('to: 2026-10-12');
   await expect(echo).toContainText('publishDate: 2026-10-12');

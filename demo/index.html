@@ -50,6 +50,22 @@
       <input id="publishDate" type="date" name="publishDate" value="2026-10-12" data-flow-datepicker>
     </section>
 
+    <section class="block" id="limits">
+      <h2>Date with limits</h2>
+      <p>Native <code>min</code>, <code>max</code> and <code>required</code>. Days outside the range are dimmed.</p>
+      <label class="field-label" for="deliveryDate">Delivery date</label>
+      <input id="deliveryDate" type="date" name="deliveryDate" min="2026-10-05" max="2026-10-20" required data-flow-datepicker>
+    </section>
+
+    <section class="block" id="locale">
+      <h2>Date in another language</h2>
+      <p>Names, order and week start come from <code>lang</code>.</p>
+      <div lang="de-DE">
+        <label class="field-label" for="startDate">Startdatum</label>
+        <input id="startDate" type="date" name="startDate" value="2026-03-02" data-flow-datepicker>
+      </div>
+    </section>
+
     <section class="block" id="time">
       <h2>Time</h2>
       <p>One time row. Handles step minutes by 5 (<code>step="300"</code>).</p>

@@ -71,6 +71,7 @@ class Locale {
     this.monthNames = this.#months('long');
     this.monthShortNames = this.#months('short');
     this.weekdayNames = this.#weekdays(weekdayLength);
+    this.weekdayLongNames = this.#weekdays('long');
     this.dayPeriods = dayPeriods(tag);
     this.order = numericOrder(tag);
     this.#formats = {
@@ -94,6 +95,12 @@ class Locale {
     const format = new Intl.DateTimeFormat(this.tag, { weekday: length === 'min' ? 'short' : length });
     const names = SAMPLE_DAYS.map((day) => format.format(createDate(2026, 0, day)));
     return length === 'min' ? names.map(shortenWeekday) : names;
+  }
+
+  dateHint() {
+    const hints = { year: 'yyyy', month: 'mm', day: 'dd' };
+    const parts = new Intl.DateTimeFormat(this.tag, { year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(createDate(2026, 10, 23));
+    return parts.map((part) => hints[part.type] ?? (part.type === 'literal' ? part.value : '')).join('');
   }
 
   weekdayOrder() {

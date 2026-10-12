@@ -8,6 +8,11 @@
 :where(:root) {
   --fdp-font-size: 1rem;
   --fdp-popover-bg: light-dark(#ffffff, #303030);
+  --fdp-field-bg: light-dark(#ffffff, #2b2b2b);
+  --fdp-field-border: light-dark(#d4d4d4, #3c3c3c);
+  --fdp-field-border-focus: light-dark(#8f8f8f, #7a7a7a);
+  --fdp-focus-ring: light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.1));
+  --fdp-outline: light-dark(#1b1b1b, #f0f0f0);
   --fdp-line: light-dark(#e3e3e3, #3c3c3c);
   --fdp-selected-bg: light-dark(#ececec, #464646);
   --fdp-band-bg: light-dark(#efefef, #3f3f3f);
@@ -17,14 +22,19 @@
   --fdp-disabled: light-dark(#b3b3b3, #858585);
   --fdp-cap-bg: light-dark(#1b1b1b, #ffffff);
   --fdp-cap-text: light-dark(#ffffff, #141414);
+  --fdp-danger: light-dark(#c62828, #f87171);
+  --fdp-shadow: 0 0.5em 1.5em light-dark(rgb(0 0 0 / 0.12), rgb(0 0 0 / 0.45)), 0 0.125em 0.375em light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.3));
 
+  --fdp-field-width: 100%;
+  --fdp-field-height: 2.5em;
+  --fdp-field-pad: 0.75em;
   --fdp-radius: 1.125em;
   --fdp-control-radius: 0.625em;
   --fdp-row-radius: 0.625em;
   --fdp-band-radius: 0.5em;
   --fdp-day-size: 2.3125em;
   --fdp-day-column: 2.34375em;
-  --fdp-day-pitch: 2.5em;
+  --fdp-row-gap: 0.1875em;
   --fdp-month-gap: 3.5625em;
   --fdp-month-padding: 1.5625em;
   --fdp-presets-width: 11.625em;
@@ -43,4 +53,376 @@
 
 :where([data-fdp-theme="auto"]) {
   color-scheme: light dark;
+}
+
+/* Plain input before the script runs: same box as the enhanced field, so nothing moves. */
+
+input[data-flow-datepicker]:not(.fdp-native) {
+  box-sizing: border-box;
+  display: block;
+  width: var(--fdp-field-width);
+  height: var(--fdp-field-height);
+  margin: 0;
+  padding: 0 var(--fdp-field-pad);
+  border: 1px solid var(--fdp-field-border);
+  border-radius: var(--fdp-control-radius);
+  background: var(--fdp-field-bg);
+  color: var(--fdp-text);
+  font: inherit;
+}
+
+:where(.fdp, .fdp-popover),
+:where(.fdp, .fdp-popover) *,
+:where(.fdp, .fdp-popover) *::before,
+:where(.fdp, .fdp-popover) *::after {
+  box-sizing: border-box;
+}
+
+.fdp {
+  position: relative;
+  display: block;
+  color: var(--fdp-text);
+}
+
+:where(.fdp--field) {
+  width: var(--fdp-field-width);
+}
+
+.fdp-native {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fdp-control {
+  display: flex;
+  align-items: center;
+  height: var(--fdp-field-height);
+  padding-inline-end: 0.3125em;
+  border: 1px solid var(--fdp-field-border);
+  border-radius: var(--fdp-control-radius);
+  background: var(--fdp-field-bg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.fdp-control:focus-within {
+  border-color: var(--fdp-field-border-focus);
+  box-shadow: 0 0 0 0.1875em var(--fdp-focus-ring);
+}
+
+.fdp.is-invalid .fdp-control {
+  border-color: var(--fdp-danger);
+}
+
+.fdp.is-disabled .fdp-control {
+  opacity: 0.55;
+}
+
+.fdp-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 0.25em 0 var(--fdp-field-pad);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.fdp-input::placeholder {
+  color: var(--fdp-muted);
+  opacity: 1;
+}
+
+.fdp-toggle,
+.fdp-nav,
+.fdp-action {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fdp-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.fdp-toggle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  border-radius: 0.5em;
+}
+
+.fdp-toggle:hover:not(:disabled) {
+  background: var(--fdp-hover-bg);
+  color: var(--fdp-text);
+}
+
+.fdp-toggle:disabled {
+  cursor: default;
+}
+
+.fdp-icon {
+  width: 1.125em;
+  height: 1.125em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Popover */
+
+.fdp-popover {
+  position: fixed;
+  inset: auto;
+  z-index: 1080;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--fdp-line);
+  border-radius: var(--fdp-radius);
+  background: var(--fdp-popover-bg);
+  box-shadow: var(--fdp-shadow);
+  color: var(--fdp-text);
+  font-size: var(--fdp-font-size);
+  line-height: 1.25;
+}
+
+.fdp-popover[hidden] {
+  display: none;
+}
+
+.fdp-popover:popover-open {
+  animation: fdp-fade 90ms ease-out;
+}
+
+@keyframes fdp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fdp-popover:popover-open {
+    animation: none;
+  }
+}
+
+/* Calendar */
+
+.fdp-calendar {
+  display: flex;
+  gap: var(--fdp-month-gap);
+  padding: 0.75em 1em 0.875em;
+}
+
+.fdp-calendar.is-multi {
+  padding-inline: var(--fdp-month-padding);
+}
+
+.fdp-month-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 2.25em;
+  margin-bottom: 0.375em;
+}
+
+.fdp-month-title {
+  font-weight: 500;
+}
+
+.fdp-nav,
+.fdp-nav-space {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75em;
+  height: 1.75em;
+  padding: 0;
+  border-radius: 0.375em;
+}
+
+.fdp-nav:hover:not(:disabled) {
+  background: var(--fdp-hover-bg);
+  color: var(--fdp-text);
+}
+
+.fdp-nav:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fdp-nav .fdp-icon {
+  width: 1.125em;
+  height: 1.125em;
+}
+
+:dir(rtl) .fdp-nav .fdp-icon {
+  transform: scaleX(-1);
+}
+
+.fdp-grid {
+  margin: calc(-1 * var(--fdp-row-gap)) 0;
+  border-collapse: separate;
+  border-spacing: 0 var(--fdp-row-gap);
+  table-layout: fixed;
+}
+
+.fdp-weekday {
+  width: var(--fdp-day-column);
+  height: 1.75em;
+  padding: 0;
+  color: var(--fdp-muted);
+  font-weight: 400;
+  text-align: center;
+}
+
+.fdp-weekday span {
+  font-size: 0.875em;
+}
+
+.fdp-cell {
+  width: var(--fdp-day-column);
+  height: var(--fdp-day-size);
+  padding: 0;
+  outline: 0;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.fdp-cell.is-empty {
+  cursor: default;
+}
+
+.fdp-day {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fdp-day-size);
+  height: var(--fdp-day-size);
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+}
+
+.fdp-cell:hover:not([aria-disabled="true"], .is-selected) .fdp-day {
+  background: var(--fdp-hover-bg);
+}
+
+.fdp-cell:focus-visible .fdp-day {
+  box-shadow: 0 0 0 2px var(--fdp-outline);
+}
+
+.fdp-cell[aria-current="date"] .fdp-day::after {
+  position: absolute;
+  bottom: 0.25em;
+  left: 50%;
+  width: 0.25em;
+  height: 0.25em;
+  margin-left: -0.125em;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.fdp-cell.is-selected .fdp-day {
+  background: var(--fdp-cap-bg);
+  color: var(--fdp-cap-text);
+}
+
+.fdp-cell.is-selected:focus-visible .fdp-day {
+  box-shadow: 0 0 0 2px var(--fdp-popover-bg), 0 0 0 4px var(--fdp-outline);
+}
+
+.fdp-cell[aria-disabled="true"] {
+  color: var(--fdp-disabled);
+  cursor: default;
+}
+
+.fdp-cell.is-in-range {
+  background: var(--fdp-band-bg);
+}
+
+.fdp-cell.is-range-start {
+  background: linear-gradient(to right, transparent 50%, var(--fdp-band-bg) 50%);
+}
+
+.fdp-cell.is-range-end {
+  background: linear-gradient(to left, transparent 50%, var(--fdp-band-bg) 50%);
+}
+
+:dir(rtl) .fdp-cell.is-range-start {
+  background: linear-gradient(to left, transparent 50%, var(--fdp-band-bg) 50%);
+}
+
+:dir(rtl) .fdp-cell.is-range-end {
+  background: linear-gradient(to right, transparent 50%, var(--fdp-band-bg) 50%);
+}
+
+.fdp-cell.is-row-start {
+  border-start-start-radius: var(--fdp-band-radius);
+  border-end-start-radius: var(--fdp-band-radius);
+}
+
+.fdp-cell.is-row-end {
+  border-start-end-radius: var(--fdp-band-radius);
+  border-end-end-radius: var(--fdp-band-radius);
+}
+
+/* Footer */
+
+.fdp-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5em;
+  padding: 0.5em 0.75em 0.625em;
+  border-top: 1px solid var(--fdp-line);
+}
+
+.fdp-action {
+  height: 2em;
+  padding: 0 0.625em;
+  border-radius: 0.5em;
+  font-size: 0.875em;
+}
+
+.fdp-action:hover:not(:disabled) {
+  background: var(--fdp-hover-bg);
+  color: var(--fdp-text);
+}
+
+.fdp-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fdp-toggle:focus-visible,
+.fdp-nav:focus-visible,
+.fdp-action:focus-visible {
+  outline: 2px solid var(--fdp-outline);
+  outline-offset: -2px;
+}
+
+@media (pointer: coarse) {
+  :where(.fdp-popover) {
+    --fdp-day-size: 2.625em;
+    --fdp-day-column: 2.75em;
+  }
 }
