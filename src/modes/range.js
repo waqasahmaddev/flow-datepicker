@@ -122,7 +122,7 @@ export const rangeMode = {
         if (anchor) {
           const [from, to] = orderDays(anchor, date);
           anchor = null;
-          picker.commit({ from, to }, { close: true });
+          picker.commit({ from, to }, { close: picker.options.closeOnSelect });
         } else {
           anchor = date;
           calendar.setSelection(date);
@@ -140,7 +140,7 @@ export const rangeMode = {
         label: picker.labels.presets,
         onPick(preset) {
           const [from, to] = preset.range(today(), picker.locale);
-          picker.commit(normalise(from, to), { close: true });
+          picker.commit(normalise(from, to), { close: picker.options.closeOnSelect });
         }
       })
       : null;

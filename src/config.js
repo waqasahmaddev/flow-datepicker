@@ -10,6 +10,7 @@ export const defaults = {
   months: null,
   placeholder: null,
   presets: null,
+  closeOnSelect: true,
   labels: {
     chooseDate: 'Choose date',
     chooseTime: 'Choose time',
@@ -25,12 +26,17 @@ export const defaults = {
     lastDays: 'Last {n} days',
     today: 'Today',
     now: 'Now',
-    clear: 'Clear'
+    clear: 'Clear',
+    hour: 'Hour',
+    minute: 'Minute',
+    second: 'Second',
+    dayPeriod: 'AM/PM'
   }
 };
 
 const INTEGER_OPTIONS = new Set(['weekStart', 'hourCycle', 'months']);
-const DATASET_OPTIONS = ['mode', 'trigger', 'locale', 'weekStart', 'hourCycle', 'weekdayLength', 'min', 'max', 'months', 'placeholder', 'presets'];
+const BOOLEAN_OPTIONS = new Set(['closeOnSelect']);
+const DATASET_OPTIONS = Object.keys(defaults).filter((key) => key !== 'labels');
 
 function datasetKey(option) {
   return `fdp${option[0].toUpperCase()}${option.slice(1)}`;
@@ -43,7 +49,9 @@ export function readDataset(element) {
     if (raw === undefined || raw === '') {
       continue;
     }
-    if (INTEGER_OPTIONS.has(option)) {
+    if (BOOLEAN_OPTIONS.has(option)) {
+      options[option] = raw !== 'false';
+    } else if (INTEGER_OPTIONS.has(option)) {
       const number = Number.parseInt(raw, 10);
       if (Number.isInteger(number)) {
         options[option] = number;

@@ -395,6 +395,9 @@ export class FlowDatepicker {
       get bounds() {
         return picker.#bounds();
       },
+      get inputs() {
+        return picker.#inputs;
+      },
       get value() {
         return picker.#value;
       },
@@ -476,7 +479,7 @@ export class FlowDatepicker {
       }
     }, { signal });
     this.#popover.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' || (event.key === 'Enter' && event.target.closest('.fdp-segment'))) {
         event.preventDefault();
         event.stopPropagation();
         this.close();

@@ -3,7 +3,6 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 const ICON_PATHS = {
   calendar: '<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M16 3v4M8 3v4M4 11h16"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
-  calendarTime: '<path d="M11.5 21H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4.5M16 3v4M8 3v4M4 11h10"/><circle cx="18" cy="18" r="4"/><path d="M18 16.5V18l1 1"/>',
   chevronLeft: '<path d="m15 6-6 6 6 6"/>',
   chevronRight: '<path d="m9 6 6 6-6 6"/>',
   chevronUp: '<path d="m6 15 6-6 6 6"/>',

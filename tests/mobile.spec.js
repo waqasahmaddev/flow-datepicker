@@ -31,8 +31,8 @@ test('touch targets are at least 42px', async ({ page }) => {
 });
 
 test('range on a phone: one month and presets in a row', async ({ page }) => {
-  await page.locator('.fdp--range .fdp-pill').tap();
-  const dialog = page.locator('.fdp--range .fdp-popover');
+  await page.locator('.fdp--range').first().locator('.fdp-pill').tap();
+  const dialog = page.locator('.fdp--range').first().locator('.fdp-popover');
   await expect(dialog.locator('.fdp-month')).toHaveCount(1);
   await expect(dialog.locator('.fdp-month-title')).toHaveText('October 2026');
   expect(await dialog.locator('.fdp-presets').evaluate((node) => getComputedStyle(node).flexDirection)).toBe('row');

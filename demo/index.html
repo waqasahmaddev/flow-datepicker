@@ -43,6 +43,15 @@
       </div>
     </section>
 
+    <section class="block" id="range-open">
+      <h2>Date range that stays open</h2>
+      <p>With <code>data-fdp-close-on-select="false"</code> the calendar stays open after a pick. Click outside or press Escape to close.</p>
+      <div data-flow-datepicker="range" data-fdp-close-on-select="false" data-fdp-max="today">
+        <input type="date" name="reportFrom" aria-label="Report from">
+        <input type="date" name="reportTo" aria-label="Report to">
+      </div>
+    </section>
+
     <section class="block" id="date">
       <h2>Date</h2>
       <p>Field trigger and one month.</p>
@@ -68,7 +77,7 @@
 
     <section class="block" id="time">
       <h2>Time</h2>
-      <p>One time row. Handles step minutes by 5 (<code>step="300"</code>).</p>
+      <p>One time row. Hover a part for the up and down handles, or use the arrow keys, the mouse wheel or type digits. Minutes step by 5 (<code>step="300"</code>).</p>
       <label class="field-label" for="startTime">Start time</label>
       <input id="startTime" type="time" name="startTime" value="12:00" step="300" data-flow-datepicker>
     </section>

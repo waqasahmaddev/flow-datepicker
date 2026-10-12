@@ -64,7 +64,7 @@ export const dateMode = {
       locale: picker.locale,
       labels: picker.labels,
       months: 1,
-      onPick: (date) => picker.commit(date, { close: true })
+      onPick: (date) => picker.commit(date, { close: picker.options.closeOnSelect })
     });
     const footer = new FooterView([
       {
