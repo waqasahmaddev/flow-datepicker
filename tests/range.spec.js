@@ -39,7 +39,7 @@ test.describe('range mode', () => {
     await expect(dialog(page).getByRole('button', { name: 'Previous month' })).toBeEnabled();
   });
 
-  test('two clicks pick a range, fire change on both inputs and close', async ({ page }) => {
+  test('two clicks pick a range, fire change on both inputs and close', { tag: '@basic' }, async ({ page }) => {
     await page.evaluate(() => {
       window.changes = [];
       for (const input of document.querySelectorAll('input[name="from"], input[name="to"]')) {
@@ -77,7 +77,7 @@ test.describe('range mode', () => {
     await expect(from(page)).toHaveValue('2026-10-05');
   });
 
-  test('presets pick a range and close', async ({ page }) => {
+  test('presets pick a range and close', { tag: '@basic' }, async ({ page }) => {
     await pill(page).click();
     await dialog(page).getByRole('option', { name: 'Last 14 days' }).click();
     await expect(dialog(page)).toBeHidden();
@@ -179,10 +179,10 @@ test.describe('range mode', () => {
     });
     const result = await page.evaluate(() => {
       window.custom.open();
-      const labels = [...document.querySelectorAll('.fdp--range:has([name="a"]) .fdp-preset')].map((node) => node.textContent);
+      const labels = [...document.querySelectorAll('[data-flow-datepicker]:has([name=\"a\"]) + .fdp .fdp-preset')].map((node) => node.textContent);
       window.custom.close();
       window.bare.open();
-      const none = document.querySelectorAll('.fdp--range:has([name="c"]) .fdp-preset').length;
+      const none = document.querySelectorAll('[data-flow-datepicker]:has([name=\"c\"]) + .fdp .fdp-preset').length;
       window.bare.close();
       window.custom.setValue('q3');
       return [labels, none, window.custom.getValue()];
@@ -197,5 +197,49 @@ test.describe('range mode', () => {
       return [...box.querySelectorAll('input')].map((input) => input.hasAttribute('tabindex')).concat(box.parentElement.classList.contains('fdp'));
     });
     expect(result).toEqual([false, false, false]);
+  });
+});
+
+test.describe('range with custom calendar', () => {
+  const custom = (page) => page.locator('[data-flow-datepicker]:has([name=\"statsFrom\"]) + .fdp');
+
+  test('opens as a list only, Custom range opens the calendar', async ({ page }) => {
+    await expect(custom(page).locator('.fdp-pill-text')).toHaveText('Last 14 days');
+    await custom(page).locator('.fdp-pill').click();
+    const box = custom(page).locator('.fdp-popover');
+    await expect(box.locator('.fdp-calendar')).toBeHidden();
+    await expect(box.getByRole('option')).toHaveText(['Week to date', 'Month to date', 'Last 7 days', 'Last 14 days', 'Last 30 days', 'Custom range']);
+    await expect(box.locator('.fdp-preset.is-active')).toHaveText('Last 14 days');
+    await box.getByRole('option', { name: 'Custom range' }).click();
+    await expect(box.locator('.fdp-calendar')).toBeVisible();
+    await expect(box.locator('.fdp-preset.is-active')).toHaveText('Custom range');
+    await box.locator('.fdp-cell[data-date="2026-09-03"]').click();
+    await box.locator('.fdp-cell[data-date="2026-09-09"]').click();
+    await expect(box).toBeHidden();
+    await expect(page.locator('input[name="statsFrom"]')).toHaveValue('2026-09-03');
+    await expect(page.locator('input[name="statsTo"]')).toHaveValue('2026-09-09');
+    await expect(custom(page).locator('.fdp-pill-text')).toHaveText('Sep 3 - Sep 9');
+  });
+
+  test('custom dates reopen with the calendar shown, a preset reopens without it', async ({ page }) => {
+    await page.evaluate(() => FlowDatepicker.get(document.querySelector('[data-fdp-calendar="custom"]')).setValue({ from: '2026-09-01', to: '2026-09-05' }));
+    await custom(page).locator('.fdp-pill').click();
+    const box = custom(page).locator('.fdp-popover');
+    await expect(box.locator('.fdp-calendar')).toBeVisible();
+    await expect(box.locator('.fdp-preset.is-active')).toHaveText('Custom range');
+    await box.getByRole('option', { name: 'Last 7 days' }).click();
+    await expect(page.locator('input[name="statsFrom"]')).toHaveValue('2026-10-05');
+    await custom(page).locator('.fdp-pill').click();
+    await expect(box.locator('.fdp-calendar')).toBeHidden();
+  });
+
+  test('keyboard: ArrowDown focuses the list, Enter on Custom range moves into the calendar', async ({ page }) => {
+    await custom(page).locator('.fdp-pill').focus();
+    await page.keyboard.press('ArrowDown');
+    const box = custom(page).locator('.fdp-popover');
+    await expect(box.getByRole('option', { name: 'Last 14 days' })).toBeFocused();
+    await page.keyboard.press('End');
+    await page.keyboard.press('Enter');
+    await expect(box.locator('.fdp-cell[data-date="2026-10-12"]')).toBeFocused();
   });
 });

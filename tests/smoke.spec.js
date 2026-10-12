@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('demo page loads the library without errors', async ({ page }) => {
+test('demo page loads the library without errors', { tag: '@basic' }, async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/demo/');
@@ -9,7 +9,7 @@ test('demo page loads the library without errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('form posts the native input values', async ({ page }) => {
+test('form posts the native input values', { tag: '@basic' }, async ({ page }) => {
   await page.goto('/demo/');
   await page.evaluate(() => FlowDatepicker.get('#deliveryDate').setValue('2026-10-15'));
   await page.getByRole('button', { name: 'Submit' }).click();

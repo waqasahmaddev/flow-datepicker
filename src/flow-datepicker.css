@@ -44,15 +44,23 @@
   --fdp-meridiem-width: 4.2857em;
 }
 
-:where([data-fdp-theme="dark"], [data-bs-theme="dark"], [data-theme="dark"], :root.dark) {
+[data-fdp-theme="dark"],
+:root[data-fdp-theme="dark"],
+:root[data-fdp-theme="dark"],
+:where([data-bs-theme="dark"], [data-theme="dark"], :root.dark) {
   color-scheme: dark;
 }
 
-:where([data-fdp-theme="light"], [data-bs-theme="light"], [data-theme="light"]) {
+[data-fdp-theme="light"],
+:root[data-fdp-theme="light"],
+:root[data-fdp-theme="light"],
+:where([data-bs-theme="light"], [data-theme="light"]) {
   color-scheme: light;
 }
 
-:where([data-fdp-theme="auto"]) {
+[data-fdp-theme="auto"],
+:root[data-fdp-theme="auto"],
+:root[data-fdp-theme="auto"] {
   color-scheme: light dark;
 }
 
@@ -99,12 +107,11 @@ input[data-flow-datepicker]:not(.fdp-native) {
 
 .fdp-native {
   position: absolute;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
+  width: 1px;
+  height: 1px;
   margin: 0;
   padding: 0;
+  overflow: hidden;
   border: 0;
   opacity: 0;
   pointer-events: none;
@@ -118,7 +125,6 @@ input[data-flow-datepicker]:not(.fdp-native) {
   border: 1px solid var(--fdp-field-border);
   border-radius: var(--fdp-control-radius);
   background: var(--fdp-field-bg);
-  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .fdp-control:focus-within {
@@ -145,6 +151,14 @@ input[data-flow-datepicker]:not(.fdp-native) {
   background: transparent;
   color: inherit;
   font: inherit;
+}
+
+.fdp-input[readonly] {
+  cursor: pointer;
+}
+
+.fdp-control.is-static .fdp-input {
+  caret-color: transparent;
 }
 
 .fdp-input::placeholder {
@@ -269,25 +283,25 @@ input[data-flow-datepicker]:not(.fdp-native) {
   color: var(--fdp-text);
   font-size: var(--fdp-font-size);
   line-height: 1.25;
+  transition: opacity 90ms ease-out, translate 90ms ease-out;
 }
 
-.fdp-popover[hidden] {
+.fdp-popover[hidden],
+.fdp-popover[popover]:not(:popover-open) {
   display: none;
 }
 
-.fdp-popover:popover-open {
-  animation: fdp-fade 90ms ease-out;
-}
-
-@keyframes fdp-fade {
-  from {
+@starting-style {
+  .fdp-popover:popover-open,
+  .fdp-popover:not([popover], [hidden]) {
     opacity: 0;
+    translate: 0 -3px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fdp-popover:popover-open {
-    animation: none;
+  .fdp-popover {
+    transition: none;
   }
 }
 
@@ -508,7 +522,36 @@ input[data-flow-datepicker]:not(.fdp-native) {
   visibility: visible;
 }
 
+.fdp-range.is-compact .fdp-calendar {
+  display: none;
+}
+
+.fdp-range.is-compact .fdp-presets {
+  border-inline-end: 0;
+}
+
+.fdp-preset--custom {
+  position: relative;
+  margin-top: 0.5714em;
+}
+
+.fdp-preset--custom::before {
+  position: absolute;
+  inset-inline: 0;
+  top: -0.4286em;
+  border-top: 1px solid var(--fdp-line);
+  content: "";
+}
+
 @media (max-width: 40em) {
+  .fdp-preset--custom {
+    margin-top: 0;
+  }
+
+  .fdp-preset--custom::before {
+    display: none;
+  }
+
   .fdp-range {
     flex-direction: column;
   }
@@ -572,7 +615,7 @@ input[data-flow-datepicker]:not(.fdp-native) {
 
 .fdp-meridiem {
   flex: none;
-  width: calc(var(--fdp-meridiem-width) / 1.1429);
+  width: var(--fdp-meridiem-width);
   border-inline-start: 1px solid var(--fdp-line);
   font-size: 1em;
   cursor: pointer;
@@ -586,11 +629,6 @@ input[data-flow-datepicker]:not(.fdp-native) {
 .fdp-segment:focus,
 .fdp-meridiem:focus {
   background: var(--fdp-selected-bg);
-}
-
-.fdp-segment:focus-visible,
-.fdp-meridiem:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--fdp-outline);
 }
 
 .fdp-time-separator {

@@ -1,4 +1,5 @@
 import { el, icon } from '../core/dom.js';
+import { isMousePress } from './field-trigger.js';
 
 export class PillTrigger {
   element;
@@ -6,6 +7,7 @@ export class PillTrigger {
   #text = '';
   #value;
   #placeholder;
+  #pressed = false;
 
   constructor({ id, iconName, label, placeholder, describedBy }) {
     this.#placeholder = placeholder || '';
@@ -31,8 +33,26 @@ export class PillTrigger {
     return this.#text;
   }
 
+  get editable() {
+    return false;
+  }
+
   bind({ toggle, keydown }, signal) {
-    this.element.addEventListener('click', () => toggle(), { signal });
+    this.element.addEventListener('pointerdown', (event) => {
+      this.#pressed = isMousePress(event);
+      if (this.#pressed) {
+        event.preventDefault();
+        this.focus();
+        toggle();
+      }
+    }, { signal });
+    this.element.addEventListener('click', () => {
+      if (this.#pressed) {
+        this.#pressed = false;
+        return;
+      }
+      toggle();
+    }, { signal });
     this.element.addEventListener('keydown', (event) => keydown(event), { signal });
   }
 

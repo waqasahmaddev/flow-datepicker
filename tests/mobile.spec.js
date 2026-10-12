@@ -5,10 +5,10 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/demo/');
 });
 
-test('tap opens the calendar without the on-screen keyboard and a tap picks a day', async ({ page }) => {
-  const input = page.locator('.fdp:has(#publishDate) .fdp-input');
+test('tap opens the calendar without the on-screen keyboard and a tap picks a day', { tag: '@basic' }, async ({ page }) => {
+  const input = page.locator('#publishDate + .fdp .fdp-input');
   await input.tap();
-  const dialog = page.locator('.fdp:has(#publishDate) .fdp-popover');
+  const dialog = page.locator('#publishDate + .fdp .fdp-popover');
   await expect(dialog).toBeVisible();
   await expect(input).toHaveAttribute('inputmode', 'none');
   await dialog.locator('.fdp-cell[data-date="2026-10-20"]').tap();
@@ -17,20 +17,20 @@ test('tap opens the calendar without the on-screen keyboard and a tap picks a da
 });
 
 test('popover fits the phone screen', async ({ page }) => {
-  await page.locator('.fdp:has(#publishDate) .fdp-input').tap();
-  const box = await page.locator('.fdp:has(#publishDate) .fdp-popover').boundingBox();
+  await page.locator('#publishDate + .fdp .fdp-input').tap();
+  const box = await page.locator('#publishDate + .fdp .fdp-popover').boundingBox();
   const width = page.viewportSize().width;
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(width);
 });
 
 test('touch targets are at least 42px', async ({ page }) => {
-  await page.locator('.fdp:has(#publishDate) .fdp-input').tap();
-  const size = await page.locator('.fdp:has(#publishDate) .fdp-cell[data-date="2026-10-20"] .fdp-day').boundingBox();
+  await page.locator('#publishDate + .fdp .fdp-input').tap();
+  const size = await page.locator('#publishDate + .fdp .fdp-cell[data-date="2026-10-20"] .fdp-day').boundingBox();
   expect(size.width).toBeGreaterThanOrEqual(42);
 });
 
-test('range on a phone: one month and presets in a row', async ({ page }) => {
+test('range on a phone: one month and presets in a row', { tag: '@basic' }, async ({ page }) => {
   await page.locator('.fdp--range').first().locator('.fdp-pill').tap();
   const dialog = page.locator('.fdp--range').first().locator('.fdp-popover');
   await expect(dialog.locator('.fdp-month')).toHaveCount(1);

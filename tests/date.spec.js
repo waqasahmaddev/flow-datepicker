@@ -6,11 +6,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 function field(page, id) {
-  return page.locator(`.fdp:has(#${id}) .fdp-input`);
+  return page.locator(`#${id} + .fdp .fdp-input`);
 }
 
 function popover(page, id) {
-  return page.locator(`.fdp:has(#${id}) .fdp-popover`);
+  return page.locator(`#${id} + .fdp .fdp-popover`);
 }
 
 function day(page, id, iso) {
@@ -26,7 +26,7 @@ test.describe('date mode', () => {
     await expect(page.getByRole('textbox', { name: 'Publish date' })).toHaveValue('Oct 12, 2026');
   });
 
-  test('clicking the field opens one month on the selected date', async ({ page }) => {
+  test('clicking the field opens one month on the selected date', { tag: '@basic' }, async ({ page }) => {
     await field(page, 'publishDate').click();
     const dialog = popover(page, 'publishDate');
     await expect(dialog).toBeVisible();
@@ -36,7 +36,7 @@ test.describe('date mode', () => {
     await expect(field(page, 'publishDate')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('picking a day writes ISO to the native input, fires change and closes', async ({ page }) => {
+  test('picking a day writes ISO to the native input, fires change and closes', { tag: '@basic' }, async ({ page }) => {
     await page.evaluate(() => {
       window.changes = [];
       document.querySelector('#publishDate').addEventListener('change', (event) => window.changes.push(event.target.value));
@@ -61,7 +61,7 @@ test.describe('date mode', () => {
     await expect(field(page, 'publishDate')).toBeFocused();
   });
 
-  test('keyboard: ArrowDown opens and focuses the grid, arrows move, Enter picks', async ({ page }) => {
+  test('keyboard: ArrowDown opens and focuses the grid, arrows move, Enter picks', { tag: '@basic' }, async ({ page }) => {
     await field(page, 'publishDate').focus();
     await page.keyboard.press('ArrowDown');
     await expect(day(page, 'publishDate', '2026-10-12')).toBeFocused();
@@ -169,14 +169,14 @@ test.describe('date mode', () => {
 
   test('required: submitting empty marks the field invalid', async ({ page }) => {
     await page.getByRole('button', { name: 'Submit' }).click();
-    await expect(page.locator('.fdp:has(#deliveryDate)')).toHaveClass(/is-invalid/);
+    await expect(page.locator('#deliveryDate + .fdp')).toHaveClass(/is-invalid/);
     await expect(field(page, 'deliveryDate')).toHaveAttribute('aria-invalid', 'true');
     await field(page, 'deliveryDate').click();
     await day(page, 'deliveryDate', '2026-10-15').click();
-    await expect(page.locator('.fdp:has(#deliveryDate)')).not.toHaveClass(/is-invalid/);
+    await expect(page.locator('#deliveryDate + .fdp')).not.toHaveClass(/is-invalid/);
   });
 
-  test('form post and reset', async ({ page }) => {
+  test('form post and reset', { tag: '@basic' }, async ({ page }) => {
     await field(page, 'deliveryDate').click();
     await day(page, 'deliveryDate', '2026-10-15').click();
     await field(page, 'publishDate').click();
@@ -226,7 +226,7 @@ test.describe('date mode', () => {
       const picker = FlowDatepicker.get('#publishDate');
       const out = [picker.getValue()];
       picker.setValue('2026-01-31');
-      out.push(document.querySelector('#publishDate').value, document.querySelector('.fdp:has(#publishDate) .fdp-input').value);
+      out.push(document.querySelector('#publishDate').value, document.querySelector('#publishDate + .fdp .fdp-input').value);
       picker.setValue(new Date(2027, 4, 9));
       out.push(picker.value);
       picker.clear();
@@ -246,8 +246,12 @@ test.describe('date mode', () => {
 
   test('no layout shift: enhanced field has the same height as the plain input', async ({ page }) => {
     const heights = await page.evaluate(() => {
-      const plain = document.querySelector('#startTime').getBoundingClientRect().height;
-      const enhanced = document.querySelector('.fdp:has(#publishDate)').getBoundingClientRect().height;
+      const probe = document.createElement('input');
+      probe.type = 'date';
+      probe.dataset.flowDatepicker = 'manual';
+      document.querySelector('#date').append(probe);
+      const plain = probe.getBoundingClientRect().height;
+      const enhanced = document.querySelector('#publishDate + .fdp').getBoundingClientRect().height;
       return [plain, enhanced];
     });
     expect(heights[1]).toBe(heights[0]);

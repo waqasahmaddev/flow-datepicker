@@ -11,6 +11,7 @@ export const defaults = {
   placeholder: null,
   presets: null,
   closeOnSelect: true,
+  calendar: 'always',
   labels: {
     chooseDate: 'Choose date',
     chooseTime: 'Choose time',
@@ -24,6 +25,7 @@ export const defaults = {
     monthToDate: 'Month to date',
     yearToDate: 'Year to date',
     lastDays: 'Last {n} days',
+    customRange: 'Custom range',
     today: 'Today',
     now: 'Now',
     clear: 'Clear',

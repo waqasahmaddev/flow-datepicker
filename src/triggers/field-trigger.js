@@ -1,12 +1,20 @@
 import { el, icon } from '../core/dom.js';
 
+export function isMousePress(event) {
+  return event.pointerType === 'mouse' && event.button === 0;
+}
+
 export class FieldTrigger {
   element;
   input;
   button;
 
-  constructor({ id, iconName, label, placeholder, labelledBy, ariaLabel, describedBy }) {
-    this.element = el('span', 'fdp-control');
+  #editable;
+  #pressed = false;
+
+  constructor({ id, iconName, label, placeholder, labelledBy, ariaLabel, describedBy, editable = true }) {
+    this.#editable = editable;
+    this.element = el('span', editable ? 'fdp-control' : 'fdp-control is-static');
     this.input = el('input', 'fdp-input', {
       type: 'text',
       id: `${id}-input`,
@@ -28,16 +36,37 @@ export class FieldTrigger {
     return this.element;
   }
 
+  get editable() {
+    return this.#editable;
+  }
+
   get text() {
     return this.input.value;
   }
 
   bind({ open, toggle, keydown, typed }, signal) {
-    this.input.addEventListener('pointerdown', (event) => this.#avoidTouchKeyboard(event), { signal });
+    this.input.addEventListener('pointerdown', (event) => {
+      this.#avoidTouchKeyboard(event);
+      if (isMousePress(event)) {
+        open();
+      }
+    }, { signal });
     this.input.addEventListener('click', () => open(), { signal });
     this.input.addEventListener('keydown', (event) => keydown(event), { signal });
     this.input.addEventListener('input', () => typed(this.input.value), { signal });
+    this.button.addEventListener('pointerdown', (event) => {
+      this.#pressed = isMousePress(event);
+      if (this.#pressed) {
+        event.preventDefault();
+        this.focus();
+        toggle();
+      }
+    }, { signal });
     this.button.addEventListener('click', () => {
+      if (this.#pressed) {
+        this.#pressed = false;
+        return;
+      }
       toggle();
       this.focus();
     }, { signal });
@@ -65,7 +94,7 @@ export class FieldTrigger {
 
   setState({ disabled, readOnly, required }) {
     this.input.disabled = disabled;
-    this.input.readOnly = readOnly;
+    this.input.readOnly = readOnly || !this.#editable;
     if (required) {
       this.input.setAttribute('aria-required', 'true');
     } else {
@@ -87,7 +116,7 @@ export class FieldTrigger {
   }
 
   #avoidTouchKeyboard(event) {
-    if (event.pointerType === 'touch') {
+    if (event.pointerType === 'touch' || !this.#editable) {
       this.input.inputMode = 'none';
     } else {
       this.input.removeAttribute('inputmode');

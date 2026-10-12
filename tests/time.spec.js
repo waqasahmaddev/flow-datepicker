@@ -5,8 +5,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/demo/');
 });
 
-const field = (page, id) => page.locator(`.fdp:has(#${id}) .fdp-input`);
-const dialog = (page, id) => page.locator(`.fdp:has(#${id}) .fdp-popover`);
+const field = (page, id) => page.locator(`#${id} + .fdp .fdp-input`);
+const dialog = (page, id) => page.locator(`#${id} + .fdp .fdp-popover`);
 const segment = (page, id, part) => dialog(page, id).locator(`[data-part="${part}"]`);
 
 test.describe('time mode', () => {
@@ -20,7 +20,7 @@ test.describe('time mode', () => {
     await expect(dialog(page, 'startTime').locator('.fdp-calendar')).toHaveCount(0);
   });
 
-  test('handles step hours and minutes by the native step', async ({ page }) => {
+  test('handles step hours and minutes by the native step', { tag: '@basic' }, async ({ page }) => {
     await field(page, 'startTime').click();
     const minutes = segment(page, 'startTime', 'minutes');
     await minutes.hover();
@@ -117,7 +117,7 @@ test.describe('time mode', () => {
       document.querySelector('main').append(input);
       const picker = FlowDatepicker.init(input)[0];
       picker.open();
-      return [document.querySelector('.fdp:has(#clock24) .fdp-input').value, [...document.querySelectorAll('.fdp:has(#clock24) [data-part]')].map((node) => node.dataset.part)];
+      return [document.querySelector('#clock24 + .fdp .fdp-input').value, [...document.querySelectorAll('#clock24 + .fdp [data-part]')].map((node) => node.dataset.part)];
     });
     expect(parts).toEqual(['18:30', ['hours', 'minutes']]);
   });
@@ -134,7 +134,7 @@ test.describe('datetime mode', () => {
     await expect(box.getByRole('button', { name: 'Now' })).toBeVisible();
   });
 
-  test('picking a day keeps the time and stays open, then the time changes', async ({ page }) => {
+  test('picking a day keeps the time and stays open, then the time changes', { tag: '@basic' }, async ({ page }) => {
     await field(page, 'meetingAt').click();
     const box = dialog(page, 'meetingAt');
     await box.locator('.fdp-cell[data-date="2026-10-20"]').click();

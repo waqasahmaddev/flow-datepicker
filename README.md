@@ -39,6 +39,7 @@ All options work as `data-fdp-*` attributes or as JS options in `FlowDatepicker.
 | `data-fdp-min`, `data-fdp-max` | `today` or an ISO date, written to the native `min` / `max` | none |
 | `data-fdp-close-on-select` | `false` keeps the calendar open after a pick | `true` |
 | `data-fdp-presets` | JSON list of presets, or `none` | week and month to date, last 7, 14 and 30 days |
+| `data-fdp-calendar` | `custom` shows only the presets plus "Custom range", which opens the calendar | `always` |
 | `data-fdp-months` | months shown in range mode | `2` (1 on narrow screens) |
 | `data-fdp-week-start` | first day of the week, `0` (Sunday) to `6` | from the locale |
 | `data-fdp-hour-cycle` | `12` or `24` | from the locale |

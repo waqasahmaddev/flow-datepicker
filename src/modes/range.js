@@ -7,6 +7,7 @@ import { matchPreset, presetFits, resolvePresets } from './presets.js';
 import { applyDateBounds, readDateBounds, toDate } from './shared.js';
 
 const NARROW = '(max-width: 40em)';
+const CUSTOM_ID = 'custom';
 
 function sameRange(a, b) {
   if (!a || !b) {
@@ -41,6 +42,7 @@ export const rangeMode = {
   name: 'range',
   trigger: 'pill',
   icon: 'calendar',
+  editable: false,
   dialogLabel: 'chooseRange',
 
   matches(element) {
@@ -112,7 +114,11 @@ export const rangeMode = {
 
   build(picker) {
     const presets = resolvePresets(picker.options.presets, picker.labels);
+    const onDemand = picker.options.calendar === 'custom' && presets.length > 0;
+    const custom = { id: CUSTOM_ID, label: picker.labels.customRange, custom: true };
     let anchor = null;
+    let calendarShown = !onDemand;
+    let isAllowed = () => true;
     const calendar = new CalendarView({
       id: picker.id,
       locale: picker.locale,
@@ -134,17 +140,28 @@ export const rangeMode = {
         }
       }
     });
+    const element = el('div', 'fdp-range');
+    const showCalendar = (shown) => {
+      calendarShown = shown;
+      element.classList.toggle('is-compact', !shown);
+    };
     const list = presets.length > 0
       ? new PresetsView({
-        presets,
+        presets: onDemand ? [...presets, custom] : presets,
         label: picker.labels.presets,
         onPick(preset) {
+          if (preset.custom) {
+            showCalendar(true);
+            list.update(CUSTOM_ID, isAllowed);
+            picker.reposition();
+            calendar.focus();
+            return;
+          }
           const [from, to] = preset.range(today(), picker.locale);
           picker.commit(normalise(from, to), { close: picker.options.closeOnSelect });
         }
       })
       : null;
-    const element = el('div', 'fdp-range');
     if (list) {
       element.append(list.element);
     }
@@ -153,13 +170,23 @@ export const rangeMode = {
       element,
       update(value, bounds) {
         anchor = null;
+        const matched = matchPreset(value, presets, today(), picker.locale);
+        if (onDemand) {
+          showCalendar(Boolean(value && !matched));
+        }
         calendar.setBounds(bounds.min, bounds.max);
         calendar.setSelection(value?.from ?? null, value?.to ?? null);
         calendar.showDate(value?.to ?? today(), { align: 'end' });
-        list?.update(matchPreset(value, presets, today(), picker.locale)?.id ?? null, (preset) => presetFits(preset, today(), picker.locale, bounds));
+        const active = matched?.id ?? (onDemand && calendarShown ? CUSTOM_ID : null);
+        isAllowed = (preset) => preset.custom || presetFits(preset, today(), picker.locale, bounds);
+        list?.update(active, isAllowed);
       },
       focus() {
-        calendar.focus();
+        if (calendarShown) {
+          calendar.focus();
+        } else {
+          list.focus();
+        }
       }
     };
   }

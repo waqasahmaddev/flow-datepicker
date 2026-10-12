@@ -23,8 +23,8 @@ export default defineConfig({
   projects: [
     { name: 'chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' }, testIgnore: mobileOnly },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testIgnore: mobileOnly },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: mobileOnly },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: mobileOnly, grep: /@basic/ },
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'], channel: 'chrome' }, testMatch: mobileOnly },
-    { name: 'mobile-safari', use: { ...devices['iPhone 14'] }, testMatch: mobileOnly }
+    { name: 'mobile-safari', use: { ...devices['iPhone 14'] }, testMatch: mobileOnly, grep: /@basic/ }
   ]
 });

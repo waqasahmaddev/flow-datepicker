@@ -12,7 +12,7 @@ export class PresetsView {
     this.#onPick = onPick;
     this.element = el('div', 'fdp-presets', { role: 'listbox', 'aria-label': label });
     for (const preset of presets) {
-      const option = el('div', 'fdp-preset', { role: 'option', tabindex: '-1', 'aria-selected': 'false', 'data-id': preset.id });
+      const option = el('div', preset.custom ? 'fdp-preset fdp-preset--custom' : 'fdp-preset', { role: 'option', tabindex: '-1', 'aria-selected': 'false', 'data-id': preset.id });
       const text = el('span', 'fdp-preset-label');
       text.textContent = preset.label;
       option.append(text, icon('check'));
@@ -43,6 +43,10 @@ export class PresetsView {
     if (target) {
       target.tabIndex = 0;
     }
+  }
+
+  focus() {
+    this.element.querySelector('.fdp-preset[tabindex="0"]')?.focus({ preventScroll: true });
   }
 
   #pick(option) {

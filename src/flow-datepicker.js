@@ -121,9 +121,9 @@ export class FlowDatepicker {
   }
 
   static #unwrapStale(element) {
-    const parent = element.parentElement;
-    if (parent?.classList.contains('fdp') && parent.firstElementChild === element) {
-      parent.replaceWith(element);
+    const next = element.nextElementSibling;
+    if (next?.classList.contains('fdp')) {
+      next.remove();
     }
     element.classList.remove('fdp-native');
   }
@@ -142,6 +142,7 @@ export class FlowDatepicker {
   #popover = null;
   #content = null;
   #isOpen = false;
+  #prepared = false;
   #destroyed = false;
   #frame = 0;
   #saved = new Map();
@@ -219,7 +220,10 @@ export class FlowDatepicker {
     this.#ensurePopover();
     this.#isOpen = true;
     openInstance = this;
-    this.#content.update(this.#value, this.#bounds());
+    if (!this.#prepared) {
+      this.#content.update(this.#value, this.#bounds());
+    }
+    this.#prepared = false;
     this.#root.classList.add('is-open');
     this.#trigger.setExpanded(true);
     showPopover(this.#popover);
@@ -268,6 +272,7 @@ export class FlowDatepicker {
       return;
     }
     this.#value = this.mode.read(this.#inputs);
+    this.#prepared = false;
     this.#syncState();
     this.#syncTrigger();
     if (this.#isOpen) {
@@ -293,9 +298,7 @@ export class FlowDatepicker {
     this.#observer?.disconnect();
     const element = this.element;
     if (restore) {
-      if (this.#root.isConnected) {
-        this.#root.replaceWith(element);
-      }
+      this.#root.remove();
       element.classList.remove('fdp-native');
       if (!element.getAttribute('class')) {
         element.removeAttribute('class');
@@ -337,6 +340,10 @@ export class FlowDatepicker {
   }
 
   #labelIds() {
+    const own = this.element === this.#inputs[0] ? null : this.element.getAttribute('aria-labelledby');
+    if (own) {
+      return own;
+    }
     const ids = [];
     for (const input of this.#inputs) {
       for (const label of input.labels ?? []) {
@@ -362,7 +369,7 @@ export class FlowDatepicker {
     }
     this.#root = el('span', `fdp fdp--${triggerName} fdp--${this.mode.name}`);
     copyLayout(element, this.#root);
-    element.before(this.#root);
+    element.after(this.#root);
     element.classList.add('fdp-native');
     element.setAttribute('aria-hidden', 'true');
     this.#trigger = new Trigger({
@@ -372,9 +379,10 @@ export class FlowDatepicker {
       placeholder: this.#placeholder(),
       labelledBy: this.#labelIds(),
       ariaLabel: this.#inputs[0]?.getAttribute('aria-label'),
-      describedBy: element.getAttribute('aria-describedby')
+      describedBy: element.getAttribute('aria-describedby'),
+      editable: this.mode.editable !== false
     });
-    this.#root.append(element, this.#trigger.element);
+    this.#root.append(this.#trigger.element);
   }
 
   #context() {
@@ -404,6 +412,9 @@ export class FlowDatepicker {
       commit(value, options) {
         picker.#commit(value, options);
       },
+      reposition() {
+        picker.#schedulePosition();
+      },
       close() {
         picker.close();
       }
@@ -428,6 +439,15 @@ export class FlowDatepicker {
     this.#bindPopover();
   }
 
+  #prepare() {
+    if (this.#isOpen || this.#prepared || this.#destroyed || this.disabled) {
+      return;
+    }
+    this.#ensurePopover();
+    this.#content.update(this.#value, this.#bounds());
+    this.#prepared = true;
+  }
+
   #dropPopover() {
     if (!this.#popover) {
       return;
@@ -446,6 +466,9 @@ export class FlowDatepicker {
       keydown: (event) => this.#onTriggerKeyDown(event),
       typed: (text) => this.#onTyped(text)
     }, signal);
+    const warm = () => this.#prepare();
+    this.#root.addEventListener('pointerenter', warm, { signal });
+    this.#root.addEventListener('focusin', warm, { signal });
     this.#root.addEventListener('focusout', (event) => {
       const next = event.relatedTarget;
       if (next && this.#root.contains(next)) {
@@ -550,6 +573,11 @@ export class FlowDatepicker {
       }
       return;
     }
+    if (!this.#trigger.editable && !this.#isOpen && (event.key === 'Enter' || event.key === ' ') && this.#trigger.input) {
+      event.preventDefault();
+      this.open();
+      return;
+    }
     if (event.key === 'Enter') {
       const typed = this.#trigger.text !== this.#formatted();
       this.#commitTyped();
@@ -596,6 +624,7 @@ export class FlowDatepicker {
   #commit(value, { close = false, silent = false } = {}) {
     const changed = !this.mode.equals(value, this.#value);
     this.#value = value ?? null;
+    this.#prepared = false;
     this.mode.write(this.#value, this.#inputs);
     this.#setInvalid(false);
     this.#syncTrigger();

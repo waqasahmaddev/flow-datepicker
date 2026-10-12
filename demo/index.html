@@ -52,6 +52,25 @@
       </div>
     </section>
 
+    <section class="block" id="range-custom">
+      <h2>Date range with Custom</h2>
+      <p>With <code>data-fdp-calendar="custom"</code> only the presets show. Pick "Custom range" to open the calendar.</p>
+      <div data-flow-datepicker="range" data-fdp-calendar="custom" data-fdp-max="today">
+        <input type="date" name="statsFrom" value="2026-09-28" aria-label="Stats from">
+        <input type="date" name="statsTo" value="2026-10-12" aria-label="Stats to">
+      </div>
+    </section>
+
+    <section class="block" id="range-field">
+      <h2>Date range in a normal field</h2>
+      <p>Same range picker with <code>data-fdp-trigger="field"</code>: a read-only field instead of the pill.</p>
+      <label class="field-label" id="campaignLabel">Campaign dates</label>
+      <div data-flow-datepicker="range" data-fdp-trigger="field" aria-labelledby="campaignLabel">
+        <input type="date" name="campaignFrom" value="2026-10-01" aria-label="Campaign from">
+        <input type="date" name="campaignTo" value="2026-10-18" aria-label="Campaign to">
+      </div>
+    </section>
+
     <section class="block" id="date">
       <h2>Date</h2>
       <p>Field trigger and one month.</p>
