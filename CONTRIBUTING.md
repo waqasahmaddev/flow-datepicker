@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping. Bug reports, ideas and pull requests are all welcome.
+Thanks for helping. Bug reports, ideas and pull requests are all welcome. Please follow the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Setup
 
@@ -35,3 +35,9 @@ Install the test browsers once with `npx playwright install`.
 ## Reporting a bug
 
 Open an issue with the browser and version, a minimal HTML example, what you expected and what happened.
+
+## Pull requests
+
+- Open an issue first for larger changes, so we can agree on the approach.
+- Pull requests target `main`. The Test workflow must pass and the maintainer reviews every change.
+- Keep one topic per pull request and note the bundle size before and after.

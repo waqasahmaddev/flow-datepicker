@@ -1,1 +1,8 @@
+# Every change needs a review from the maintainer.
 * @waqasahmaddev
+
+# Release, CI and package settings.
+/.github/ @waqasahmaddev
+/package.json @waqasahmaddev
+/package-lock.json @waqasahmaddev
+/scripts/ @waqasahmaddev

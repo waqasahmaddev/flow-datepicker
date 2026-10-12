@@ -1,7 +1,6 @@
 {
   "name": "flow-datepicker",
   "version": "1.0.0",
-  "private": true,
   "description": "A light, keyboard-first date, time and date range picker for plain HTML forms. No dependencies.",
   "license": "MIT",
   "author": "Waqas Ahmad",
@@ -25,6 +24,8 @@
   "main": "dist/flow-datepicker.esm.js",
   "module": "dist/flow-datepicker.esm.js",
   "browser": "dist/flow-datepicker.min.js",
+  "unpkg": "dist/flow-datepicker.min.js",
+  "jsdelivr": "dist/flow-datepicker.min.js",
   "style": "dist/flow-datepicker.css",
   "exports": {
     ".": {
@@ -55,7 +56,8 @@
     "test:ui": "playwright test --ui",
     "docs:dev": "vitepress dev docs --port 5290",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs --port 5291"
+    "docs:preview": "vitepress preview docs --port 5291",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=18"

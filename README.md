@@ -28,14 +28,29 @@ It enhances a normal `<input type="date">`, `<input type="time">` or `<input typ
 
 ## Install
 
-Download the files from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases/latest) and add them to the `<head>`:
+From a CDN:
 
 ```html
-<link rel="stylesheet" href="flow-datepicker.min.css">
-<script src="flow-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flow-datepicker@1.0.0/dist/flow-datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flow-datepicker@1.0.0/dist/flow-datepicker.min.js"></script>
 ```
 
-Loading the script in the `<head>` (without `defer`) lets it enhance inputs while the page is parsed, so nothing moves on screen. An ES module build (`flow-datepicker.esm.min.js`) is in the release too.
+From npm:
+
+```bash
+npm install flow-datepicker
+```
+
+```js
+import { FlowDatepicker } from 'flow-datepicker';
+import 'flow-datepicker/css';
+
+FlowDatepicker.init(document);
+```
+
+Or download the files from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases/latest).
+
+Loading the script build in the `<head>` (without `defer`) lets it enhance inputs while the page is parsed, so nothing moves on screen.
 
 ## Usage
 

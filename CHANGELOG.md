@@ -31,5 +31,6 @@ First release.
 
 ### Builds
 
+- Published on npm as `flow-datepicker` and on jsDelivr and unpkg.
 - `flow-datepicker.min.js` (auto start, global `FlowDatepicker`), `flow-datepicker.esm.min.js` (ES module), `flow-datepicker.min.css`, plus unminified files and source maps.
 - Size: 14.7 KB gzip JavaScript, 2.8 KB gzip CSS.

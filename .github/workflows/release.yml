@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   assets:
@@ -37,3 +38,28 @@ jobs:
             flow-datepicker.esm.js flow-datepicker.esm.min.js \
             "flow-datepicker-${{ github.event.release.tag_name }}.zip" \
             --clobber
+
+  npm:
+    needs: assets
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - run: npm run build
+      - name: Publish unless this version is already on npm
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "flow-datepicker@$VERSION" version > /dev/null 2>&1; then
+            echo "flow-datepicker@$VERSION is already on npm, nothing to publish."
+          else
+            npm publish --provenance --access public
+          fi

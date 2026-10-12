@@ -81,7 +81,8 @@ export default defineConfig({
       }
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/waqasahmaddev/flow-datepicker' }
+      { icon: 'github', link: 'https://github.com/waqasahmaddev/flow-datepicker' },
+      { icon: 'npm', link: 'https://www.npmjs.com/package/flow-datepicker' }
     ],
     editLink: {
       pattern: 'https://github.com/waqasahmaddev/flow-datepicker/edit/main/docs/:path',

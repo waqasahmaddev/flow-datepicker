@@ -2,7 +2,33 @@
 
 ## Add the files
 
-flow-datepicker is published on GitHub. Download `flow-datepicker.min.js` and `flow-datepicker.min.css` from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases/latest) (the zip has every build and the source maps), or build them yourself:
+### From a CDN
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flow-datepicker@1.0.0/dist/flow-datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flow-datepicker@1.0.0/dist/flow-datepicker.min.js"></script>
+```
+
+unpkg works too: `https://unpkg.com/flow-datepicker@1.0.0/dist/flow-datepicker.min.js`.
+
+### From npm
+
+```bash
+npm install flow-datepicker
+```
+
+```js
+import { FlowDatepicker } from 'flow-datepicker';
+import 'flow-datepicker/css';
+
+FlowDatepicker.init(document);
+```
+
+The ES module does not start anything by itself; call `FlowDatepicker.init()` or `FlowDatepicker.autoInit()`.
+
+### Download
+
+The files are also attached to every GitHub release. Download `flow-datepicker.min.js` and `flow-datepicker.min.css` from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases/latest) (the zip has every build and the source maps), or build them yourself:
 
 ```bash
 git clone https://github.com/waqasahmaddev/flow-datepicker.git
