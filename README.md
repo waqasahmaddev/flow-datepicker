@@ -4,6 +4,8 @@ A light, keyboard-first date, time and date range picker for plain HTML forms. N
 
 > Work in progress. Not released yet. Date, time, date and time, and date range work today.
 
+Documentation with live demos: https://waqasahmaddev.github.io/flow-datepicker/
+
 ## Goals
 
 - One library for four modes: date, time, date and time, and date range with presets.
@@ -76,7 +78,7 @@ npm run build
 npm run serve
 ```
 
-The demo runs at http://localhost:5280/demo/. See [CONTRIBUTING.md](CONTRIBUTING.md).
+The demo runs at http://localhost:5280/demo/. The docs run with `npm run docs:dev` at http://localhost:5290/. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

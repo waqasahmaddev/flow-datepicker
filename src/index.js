@@ -1,4 +1,5 @@
 import { FlowDatepicker } from './flow-datepicker.js';
+import { autoInit } from './auto-init.js';
 import { CalendarView } from './views/calendar-view.js';
 import { FooterView } from './views/footer-view.js';
 import { PresetsView } from './views/presets-view.js';
@@ -17,5 +18,7 @@ FlowDatepicker.modes.register(rangeMode);
 FlowDatepicker.modes.register(timeMode);
 FlowDatepicker.modes.register(datetimeMode);
 
-export { FlowDatepicker };
+FlowDatepicker.autoInit = autoInit;
+
+export { FlowDatepicker, autoInit };
 export default FlowDatepicker;

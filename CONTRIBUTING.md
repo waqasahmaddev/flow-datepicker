@@ -19,6 +19,7 @@ npm run build
 | `npm run watch` | Rebuilds `dist/` on every change |
 | `npm run serve` | Demo page with a form echo endpoint at http://localhost:5280/demo/ |
 | `npm test` | Runs the Playwright tests |
+| `npm run docs:dev` | Documentation site with live demos at http://localhost:5290/ |
 
 Install the test browsers once with `npx playwright install`.
 
