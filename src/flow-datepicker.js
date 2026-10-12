@@ -45,7 +45,7 @@ function refreshPicker(picker) {
 export class FlowDatepicker {
   static defaults = defaults;
   static selector = SELECTOR;
-  static version = '0.0.0';
+  static version = '1.0.0';
 
   static modes = {
     register(recipe) {

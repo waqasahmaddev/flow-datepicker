@@ -15,5 +15,5 @@ The library uses the popover API (with a fallback), `light-dark()` and `Intl`. I
 
 | File | Minified | Gzip |
 |---|---|---|
-| `flow-datepicker.min.js` | 43 KB | 14.4 KB |
+| `flow-datepicker.min.js` | 44 KB | 14.7 KB |
 | `flow-datepicker.min.css` | 11 KB | 2.8 KB |

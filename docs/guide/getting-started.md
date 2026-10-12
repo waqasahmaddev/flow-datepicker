@@ -2,7 +2,7 @@
 
 ## Add the files
 
-flow-datepicker is published on GitHub. Download `flow-datepicker.min.js` and `flow-datepicker.min.css` from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases), or build them yourself:
+flow-datepicker is published on GitHub. Download `flow-datepicker.min.js` and `flow-datepicker.min.css` from the [latest release](https://github.com/waqasahmaddev/flow-datepicker/releases/latest) (the zip has every build and the source maps), or build them yourself:
 
 ```bash
 git clone https://github.com/waqasahmaddev/flow-datepicker.git

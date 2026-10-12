@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check the tag matches package.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "v$VERSION" != "${{ github.event.release.tag_name }}" ]; then
+            echo "Tag ${{ github.event.release.tag_name }} does not match package.json version $VERSION"
+            exit 1
+          fi
+      - run: npm run build
+      - name: Attach the built files to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist
+          zip -q "flow-datepicker-${{ github.event.release.tag_name }}.zip" *.js *.css *.map
+          gh release upload "${{ github.event.release.tag_name }}" \
+            flow-datepicker.min.js flow-datepicker.min.css \
+            flow-datepicker.js flow-datepicker.css \
+            flow-datepicker.esm.js flow-datepicker.esm.min.js \
+            "flow-datepicker-${{ github.event.release.tag_name }}.zip" \
+            --clobber

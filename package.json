@@ -1,6 +1,6 @@
 {
   "name": "flow-datepicker",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "A light, keyboard-first date, time and date range picker for plain HTML forms. No dependencies.",
   "license": "MIT",

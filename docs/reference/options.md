@@ -10,7 +10,7 @@ Every option can be set as a `data-fdp-*` attribute or as a JS option in `new Fl
 | `closeOnSelect` | `data-fdp-close-on-select` | `true`, `false` | `true` |
 | `calendar` | `data-fdp-calendar` | `always`, `custom` (range only) | `always` |
 | `presets` | `data-fdp-presets` | JSON list, `none`, or a JS array | five defaults |
-| `months` | `data-fdp-months` | number of months in range mode | `2`, `1` on narrow screens |
+| `months` | `data-fdp-months` | number of months in range mode | fits the space |
 | `locale` | `data-fdp-locale` | a language tag such as `de-DE` | nearest `lang`, then the browser |
 | `weekStart` | `data-fdp-week-start` | `0` (Sunday) to `6` | from the locale |
 | `hourCycle` | `data-fdp-hour-cycle` | `12`, `24` | from the locale |

@@ -13,7 +13,7 @@ flow-datepicker turns a normal `<input type="date">`, `<input type="time">` or `
 
 - **The input stays real.** The native input keeps its name, value, `min`, `max`, `step`, `required` and `disabled`. Forms post exactly what they posted before, form reset and the Back button work, and if the script never loads the browser's own picker still works.
 - **One look everywhere.** Native date inputs look different in each browser and cannot be styled. flow-datepicker draws the same field, calendar and time row everywhere.
-- **Light.** No dependencies, no locale files, about 14 KB gzipped for all four modes.
+- **Light.** No dependencies, no locale files, about 15 KB gzipped for all four modes.
 - **Keyboard and screen reader friendly.** The calendar is a grid with one tab stop, the time parts are spin buttons and the popover is a labelled dialog.
 
 ## What you get

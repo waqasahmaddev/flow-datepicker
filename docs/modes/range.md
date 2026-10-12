@@ -55,7 +55,7 @@ The default trigger is a pill for filter bars. Use `data-fdp-trigger="field"` fo
 
 ## Months shown
 
-Two months are shown side by side, one on narrow screens. Set `data-fdp-months="1"` to always show one.
+The picker fits the space it has: two months side by side, then one month, and on a phone only the calendar (with `data-fdp-calendar="custom"` the presets stay, as a row above the calendar). It measures again when the window is resized. Set `data-fdp-months="1"` or `"2"` to fix the count.
 
 ## Keep it open
 

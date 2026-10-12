@@ -21,7 +21,7 @@ The popover is one row: hour, minute and AM/PM.
 - Click AM/PM to switch it, or press <kbd>A</kbd> or <kbd>P</kbd>.
 - <kbd>Enter</kbd> or <kbd>Escape</kbd> closes the row.
 
-Going from 11 to 12 switches AM and PM, like a clock.
+Going from 11 to 12 switches AM and PM, like a clock. Steps carry over: minutes past 55 move the hour on (9:55 becomes 10:00), and back below 00 move it back.
 
 ## Minute step
 

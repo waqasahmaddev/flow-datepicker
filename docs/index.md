@@ -25,7 +25,7 @@ features:
   - title: No layout shift
     details: The stylesheet draws the plain input at its final size, and the script enhances inputs while the page is parsed.
   - title: Small and themeable
-    details: About 14 KB gzipped for all four modes. Neutral grey, light and dark from the page's color-scheme, every value a CSS custom property.
+    details: About 15 KB gzipped for all four modes. Neutral grey, light and dark from the page's color-scheme, every value a CSS custom property.
 ---
 
 <div class="vp-doc" style="max-width: 720px; margin: 48px auto 0; padding: 0 24px">
