@@ -543,37 +543,41 @@ input[data-flow-datepicker]:not(.fdp-native) {
   content: "";
 }
 
-@media (max-width: 40em) {
-  .fdp-preset--custom {
-    margin-top: 0;
-  }
+.fdp-range.is-calendar-only .fdp-presets {
+  display: none;
+}
 
-  .fdp-preset--custom::before {
-    display: none;
-  }
+.fdp-range.is-stacked {
+  flex-direction: column;
+  max-width: calc(100vw - 16px);
+}
 
-  .fdp-range {
-    flex-direction: column;
-  }
+.fdp-range.is-stacked .fdp-presets {
+  flex-direction: row;
+  width: 0;
+  min-width: 100%;
+  overflow-x: auto;
+  padding: 0.5em;
+  border-inline-end: 0;
+  border-bottom: 1px solid var(--fdp-line);
+  scrollbar-width: none;
+}
 
-  .fdp-presets {
-    flex-direction: row;
-    width: auto;
-    overflow-x: auto;
-    padding: 0.5em;
-    border-inline-end: 0;
-    border-bottom: 1px solid var(--fdp-line);
-    scrollbar-width: none;
-  }
+.fdp-range.is-stacked .fdp-preset {
+  flex: none;
+  white-space: nowrap;
+}
 
-  .fdp-preset {
-    flex: none;
-    white-space: nowrap;
-  }
+.fdp-range.is-stacked .fdp-preset .fdp-icon {
+  display: none;
+}
 
-  .fdp-preset .fdp-icon {
-    display: none;
-  }
+.fdp-range.is-stacked .fdp-preset--custom {
+  margin-top: 0;
+}
+
+.fdp-range.is-stacked .fdp-preset--custom::before {
+  display: none;
 }
 
 /* Time row */

@@ -6,7 +6,6 @@ import { PresetsView } from '../views/presets-view.js';
 import { matchPreset, presetFits, resolvePresets } from './presets.js';
 import { applyDateBounds, readDateBounds, toDate } from './shared.js';
 
-const NARROW = '(max-width: 40em)';
 const CUSTOM_ID = 'custom';
 
 function sameRange(a, b) {
@@ -31,11 +30,8 @@ function normalise(from, to) {
   return { from: from ?? to, to: to ?? from };
 }
 
-function monthCount(options) {
-  if (Number.isInteger(options.months) && options.months > 0) {
-    return options.months;
-  }
-  return globalThis.matchMedia?.(NARROW).matches ? 1 : 2;
+function fixedMonths(options) {
+  return Number.isInteger(options.months) && options.months > 0 ? options.months : null;
 }
 
 export const rangeMode = {
@@ -118,12 +114,13 @@ export const rangeMode = {
     const custom = { id: CUSTOM_ID, label: picker.labels.customRange, custom: true };
     let anchor = null;
     let calendarShown = !onDemand;
+    let shownDate = null;
     let isAllowed = () => true;
     const calendar = new CalendarView({
       id: picker.id,
       locale: picker.locale,
       labels: picker.labels,
-      months: monthCount(picker.options),
+      months: fixedMonths(picker.options) ?? 2,
       onPick(date) {
         if (anchor) {
           const [from, to] = orderDays(anchor, date);
@@ -176,10 +173,31 @@ export const rangeMode = {
         }
         calendar.setBounds(bounds.min, bounds.max);
         calendar.setSelection(value?.from ?? null, value?.to ?? null);
-        calendar.showDate(value?.to ?? today(), { align: 'end' });
+        shownDate = value?.to ?? today();
+        calendar.showDate(shownDate, { align: 'end' });
         const active = matched?.id ?? (onDemand && calendarShown ? CUSTOM_ID : null);
         isAllowed = (preset) => preset.custom || presetFits(preset, today(), picker.locale, bounds);
         list?.update(active, isAllowed);
+      },
+      fit(maxWidth) {
+        if (fixedMonths(picker.options)) {
+          return;
+        }
+        const narrow = onDemand ? 'is-stacked' : 'is-calendar-only';
+        const layouts = [[2, null], [1, null], [1, narrow]];
+        for (const [months, layout] of layouts) {
+          element.classList.remove('is-stacked', 'is-calendar-only');
+          if (layout) {
+            element.classList.add(layout);
+          }
+          if (calendar.months !== months) {
+            calendar.setMonths(months);
+            calendar.showDate(shownDate ?? today(), { align: 'end' });
+          }
+          if (element.scrollWidth <= maxWidth) {
+            return;
+          }
+        }
       },
       focus() {
         if (calendarShown) {

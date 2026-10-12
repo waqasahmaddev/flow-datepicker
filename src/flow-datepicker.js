@@ -145,6 +145,7 @@ export class FlowDatepicker {
   #prepared = false;
   #destroyed = false;
   #frame = 0;
+  #refit = false;
   #saved = new Map();
   #ctx;
   #listeners = new AbortController();
@@ -228,6 +229,7 @@ export class FlowDatepicker {
     this.#trigger.setExpanded(true);
     showPopover(this.#popover);
     this.#listenWhileOpen();
+    this.#fit();
     this.#position();
     this.#emit('open');
   }
@@ -413,7 +415,7 @@ export class FlowDatepicker {
         picker.#commit(value, options);
       },
       reposition() {
-        picker.#schedulePosition();
+        picker.#schedulePosition(true);
       },
       close() {
         picker.close();
@@ -516,7 +518,7 @@ export class FlowDatepicker {
     const reposition = (event) => {
       const inside = event.type === 'scroll' && event.target instanceof Node && this.#popover.contains(event.target);
       if (!inside) {
-        this.#schedulePosition();
+        this.#schedulePosition(event.type === 'resize');
       }
     };
     const watcher = new MutationObserver(() => {
@@ -544,14 +546,24 @@ export class FlowDatepicker {
     positionPopover(this.#popover, this.#trigger.anchor, { rtl: getComputedStyle(this.#root).direction === 'rtl' });
   }
 
-  #schedulePosition() {
+  #schedulePosition(refit = false) {
+    this.#refit ||= refit;
     if (!this.#isOpen || this.#frame) {
       return;
     }
     this.#frame = requestAnimationFrame(() => {
       this.#frame = 0;
+      if (this.#refit) {
+        this.#refit = false;
+        this.#fit();
+      }
       this.#position();
     });
+  }
+
+  #fit() {
+    const width = window.visualViewport?.width ?? document.documentElement.clientWidth;
+    this.#content.fit?.(width - 16);
   }
 
   #onTriggerKeyDown(event) {

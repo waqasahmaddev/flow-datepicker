@@ -30,12 +30,13 @@ test('touch targets are at least 42px', async ({ page }) => {
   expect(size.width).toBeGreaterThanOrEqual(42);
 });
 
-test('range on a phone: one month and presets in a row', { tag: '@basic' }, async ({ page }) => {
+test('range on a phone: only one month, no presets', { tag: '@basic' }, async ({ page }) => {
   await page.locator('.fdp--range').first().locator('.fdp-pill').tap();
   const dialog = page.locator('.fdp--range').first().locator('.fdp-popover');
   await expect(dialog.locator('.fdp-month')).toHaveCount(1);
   await expect(dialog.locator('.fdp-month-title')).toHaveText('October 2026');
-  expect(await dialog.locator('.fdp-presets').evaluate((node) => getComputedStyle(node).flexDirection)).toBe('row');
+  await expect(dialog.locator('.fdp-presets')).toBeHidden();
+  await expect(dialog.getByRole('button', { name: 'Previous month' })).toBeVisible();
   const box = await dialog.boundingBox();
   expect(box.x + box.width).toBeLessThanOrEqual(page.viewportSize().width);
   await dialog.locator('.fdp-cell[data-date="2026-10-01"]').tap();

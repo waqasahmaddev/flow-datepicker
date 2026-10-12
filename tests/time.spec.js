@@ -28,13 +28,13 @@ test.describe('time mode', () => {
     await expect(page.locator('#startTime')).toHaveValue('12:05');
     await minutes.locator('.fdp-handle[data-step="-1"]').click();
     await minutes.locator('.fdp-handle[data-step="-1"]').click();
-    await expect(page.locator('#startTime')).toHaveValue('12:55');
+    await expect(page.locator('#startTime')).toHaveValue('11:55');
     const hours = segment(page, 'startTime', 'hours');
     await hours.hover();
     await hours.locator('.fdp-handle[data-step="-1"]').click();
-    await expect(page.locator('#startTime')).toHaveValue('11:55');
+    await expect(page.locator('#startTime')).toHaveValue('10:55');
     await expect(segment(page, 'startTime', 'period')).toHaveText('AM');
-    await expect(field(page, 'startTime')).toHaveValue('11:55 AM');
+    await expect(field(page, 'startTime')).toHaveValue('10:55 AM');
     await expect(dialog(page, 'startTime')).toBeVisible();
   });
 
@@ -74,7 +74,31 @@ test.describe('time mode', () => {
     await expect(page.locator('#startTime')).toHaveValue('12:05');
     await page.mouse.wheel(0, 100);
     await page.mouse.wheel(0, 100);
-    await expect(page.locator('#startTime')).toHaveValue('12:55');
+    await expect(page.locator('#startTime')).toHaveValue('11:55');
+  });
+
+  test('minutes carry into the hour, both ways, and wrap at midnight', async ({ page }) => {
+    await page.evaluate(() => FlowDatepicker.get('#startTime').setValue('09:55'));
+    await field(page, 'startTime').focus();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Tab');
+    await expect(segment(page, 'startTime', 'minutes')).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await expect(page.locator('#startTime')).toHaveValue('10:00');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.locator('#startTime')).toHaveValue('09:55');
+    await page.evaluate(() => FlowDatepicker.get('#startTime').setValue('23:55'));
+    await page.keyboard.press('ArrowUp');
+    await expect(page.locator('#startTime')).toHaveValue('00:00');
+    await expect(segment(page, 'startTime', 'period')).toHaveText('AM');
+  });
+
+  test('a minute not on the step snaps to the next step and carries', async ({ page }) => {
+    await page.evaluate(() => FlowDatepicker.get('#startTime').setValue('08:58'));
+    await field(page, 'startTime').click();
+    await segment(page, 'startTime', 'minutes').hover();
+    await segment(page, 'startTime', 'minutes').locator('.fdp-handle[data-step="1"]').click();
+    await expect(page.locator('#startTime')).toHaveValue('09:00');
   });
 
   test('typing in the field commits a parsed time', async ({ page }) => {

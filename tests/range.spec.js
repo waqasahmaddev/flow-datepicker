@@ -243,3 +243,69 @@ test.describe('range with custom calendar', () => {
     await expect(box.locator('.fdp-cell[data-date="2026-10-12"]')).toBeFocused();
   });
 });
+
+test.describe('range layout fits the screen', () => {
+  const layout = async (page) => page.evaluate(() => {
+    const popover = document.querySelector('.fdp--range .fdp-popover');
+    const range = popover.querySelector('.fdp-range');
+    const box = popover.getBoundingClientRect();
+    const presets = popover.querySelector('.fdp-presets');
+    return { months: popover.querySelectorAll('.fdp-month').length, presets: Boolean(presets && presets.offsetParent), fits: box.right <= innerWidth && box.left >= 0 && range.scrollWidth <= range.clientWidth };
+  });
+
+  test('two months, one month, then only the calendar as the screen narrows', async ({ page }) => {
+    for (const [width, expected] of [[1000, { months: 2, presets: true }], [560, { months: 1, presets: true }], [390, { months: 1, presets: false }]]) {
+      await page.setViewportSize({ width, height: 760 });
+      await page.locator('.fdp--range').first().locator('.fdp-pill').click();
+      expect(await layout(page)).toEqual({ ...expected, fits: true });
+      await page.keyboard.press('Escape');
+    }
+  });
+
+  test('one month view still steps month by month and picks across months', async ({ page }) => {
+    await page.setViewportSize({ width: 560, height: 760 });
+    const root = page.locator('.fdp--range').first();
+    await root.locator('.fdp-pill').click();
+    const dialog = root.locator('.fdp-popover');
+    await expect(dialog.locator('.fdp-month-title')).toHaveText('October 2026');
+    await expect(dialog.getByRole('button', { name: 'Previous month' })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Next month' })).toBeDisabled();
+    await dialog.getByRole('button', { name: 'Previous month' }).click();
+    await expect(dialog.locator('.fdp-month-title')).toHaveText('September 2026');
+    await dialog.locator('.fdp-cell[data-date="2026-09-25"]').click();
+    await dialog.getByRole('button', { name: 'Next month' }).click();
+    await dialog.locator('.fdp-cell[data-date="2026-10-02"]').click();
+    await expect(page.locator('input[name="from"]')).toHaveValue('2026-09-25');
+    await expect(page.locator('input[name="to"]')).toHaveValue('2026-10-02');
+  });
+
+  test('resizing while open refits the layout', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 760 });
+    await page.locator('.fdp--range').first().locator('.fdp-pill').click();
+    expect((await layout(page)).months).toBe(2);
+    await page.setViewportSize({ width: 390, height: 760 });
+    await expect.poll(async () => (await layout(page)).presets).toBe(false);
+    expect(await layout(page)).toEqual({ months: 1, presets: false, fits: true });
+  });
+
+  test('custom calendar mode keeps the presets as a row on a narrow screen', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 760 });
+    const custom = page.locator('[data-flow-datepicker]:has([name="statsFrom"]) + .fdp');
+    await custom.locator('.fdp-pill').click();
+    const range = custom.locator('.fdp-range');
+    await expect(range).not.toHaveClass(/is-stacked/);
+    await custom.getByRole('option', { name: 'Custom range' }).click();
+    await expect(range).toHaveClass(/is-stacked/);
+    await expect(custom.locator('.fdp-month')).toHaveCount(1);
+    await expect(custom.locator('.fdp-presets')).toBeVisible();
+    const box = await custom.locator('.fdp-popover').boundingBox();
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+  });
+
+  test('data-fdp-months keeps a fixed count', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 760 });
+    await page.evaluate(() => FlowDatepicker.get(document.querySelector('[data-flow-datepicker="range"]')).setOptions({ months: 1 }));
+    await page.locator('.fdp--range').first().locator('.fdp-pill').click();
+    expect((await layout(page)).months).toBe(1);
+  });
+});

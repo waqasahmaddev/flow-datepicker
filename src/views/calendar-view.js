@@ -52,6 +52,15 @@ export class CalendarView {
     return this.#first;
   }
 
+  get months() {
+    return this.#months;
+  }
+
+  setMonths(months) {
+    this.#months = Math.max(1, months);
+    this.element.classList.toggle('is-multi', this.#months > 1);
+  }
+
   setBounds(min, max) {
     this.#min = min ?? null;
     this.#max = max ?? null;

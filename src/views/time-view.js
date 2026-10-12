@@ -1,6 +1,15 @@
 import { el, icon } from '../core/dom.js';
 
 const TYPE_RESET_MS = 1000;
+const DAY_SECONDS = 86400;
+
+function toSeconds(time) {
+  return time.hours * 3600 + time.minutes * 60 + (time.seconds ?? 0);
+}
+
+function fromSeconds(total) {
+  return { hours: Math.floor(total / 3600), minutes: Math.floor(total / 60) % 60, seconds: total % 60 };
+}
 
 function wrap(value, size) {
   return ((value % size) + size) % size;
@@ -145,9 +154,11 @@ export class TimeView {
     } else if (part === 'minutes') {
       const step = this.#minuteStep;
       const aligned = direction > 0 ? Math.floor(time.minutes / step) * step + step : Math.ceil(time.minutes / step) * step - step;
-      time.minutes = wrap(aligned, 60);
+      this.#change(fromSeconds(wrap(time.hours * 3600 + aligned * 60 + time.seconds, DAY_SECONDS)));
+      return;
     } else if (part === 'seconds') {
-      time.seconds = wrap(time.seconds + direction, 60);
+      this.#change(fromSeconds(wrap(toSeconds(time) + direction, DAY_SECONDS)));
+      return;
     } else {
       time.hours = wrap(time.hours + 12, 24);
     }
